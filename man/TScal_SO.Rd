@@ -2,7 +2,7 @@
 % Please edit documentation in R/TScalibration_functions.R
 \name{TScal_SO}
 \alias{TScal_SO}
-\title{Calibrate StarOddi data 
+\title{Calibrate StarOddi data
 Based on initial calibration measurment and end calibration measurement}
 \usage{
 TScal_SO(dat)
@@ -14,6 +14,6 @@ TScal_SO(dat)
 calibrated dataframe
 }
 \description{
-Calibrate StarOddi data 
+Calibrate StarOddi data
 Based on initial calibration measurment and end calibration measurement
 }

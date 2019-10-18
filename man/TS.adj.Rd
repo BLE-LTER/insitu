@@ -2,7 +2,7 @@
 % Please edit documentation in R/TScalibration_functions.R
 \name{TS.adj}
 \alias{TS.adj}
-\title{Calibrate data 
+\title{Calibrate data
 Based on initial calibration measurment and end calibration measurement
 Adjustment is linear}
 \usage{
@@ -23,7 +23,7 @@ TS.adj(raw, calib, rowfirst, rowlast, rownums)
 calibrated column calib
 }
 \description{
-Calibrate data 
+Calibrate data
 Based on initial calibration measurment and end calibration measurement
 Adjustment is linear
 }

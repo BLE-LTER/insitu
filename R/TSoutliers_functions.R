@@ -20,6 +20,7 @@
 #' @param Terror precision for temperature
 #' @param Cerror precision for conductivity
 #' @example TSanom_workup(RBR, "Temperature", "Conductivity", .002,.01)
+#' @export
 
 TSanom_workup <- function(dat, tempcol, condcol, Terror, Cerror) {
   dat$Sal <- Cond.to.Sal(dat[[condcol]], dat[[tempcol]])
@@ -53,6 +54,8 @@ TSanom_workup <- function(dat, tempcol, condcol, Terror, Cerror) {
 #' @param dat dataframe that has gone through TSanom_workup
 #' @param tempcol name of column for temperature, in quotes
 #' @param name name of plot, usually site name
+#' @return
+#' @export
 
 outlierTS <- function(dat, tempcol, name) {
   tks <- seq(dat$Date[1], dat$Date[nrow(dat)], by = "months")
@@ -93,6 +96,8 @@ outlierTS <- function(dat, tempcol, name) {
 #' @param datename name of column for date, in quotes
 #' @param salname name of column for salinity, in quotes
 #' @param dfname plot title
+#' @return
+#' @export
 
 IDoutlier <- function(dat, datename, salname, dfname) {
   my.col <-
@@ -118,6 +123,8 @@ IDoutlier <- function(dat, datename, salname, dfname) {
 #' @param tempname name of column for temperature, in quotes
 #' @param salname name of column for salinity, in quotes
 #' @param dfname plot title
+#' @return
+#' @export
 
 IDoutlier2 <- function(dat, tempname, salname, dfname) {
   my.col <-

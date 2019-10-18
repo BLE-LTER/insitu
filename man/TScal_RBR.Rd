@@ -2,7 +2,7 @@
 % Please edit documentation in R/TScalibration_functions.R
 \name{TScal_RBR}
 \alias{TScal_RBR}
-\title{Calibrate RBR data 
+\title{Calibrate RBR data
 Based on initial calibration measurment and end calibration measurement}
 \usage{
 TScal_RBR(dat)
@@ -14,6 +14,6 @@ TScal_RBR(dat)
 calibrated dataframe
 }
 \description{
-Calibrate RBR data 
+Calibrate RBR data
 Based on initial calibration measurment and end calibration measurement
 }

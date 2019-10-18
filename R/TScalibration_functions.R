@@ -13,6 +13,7 @@
 #' @param rowlast the rownumber of the second (and last) calibration value
 #' @param rownums a column of row numbers
 #' @return calibrated column calib
+#' @export
 
 TS.adj <- function (raw, calib, rowfirst, rowlast, rownums) {
   x1 <- calib[rowfirst] - raw[rowfirst]
@@ -28,6 +29,7 @@ TS.adj <- function (raw, calib, rowfirst, rowlast, rownums) {
 #' Based on initial calibration measurment and end calibration measurement
 #' @param dat a dataframe with rows:Cond_mspercm, Temp_C, fixedCond, fixedTemp
 #' @return calibrated dataframe
+#' @export
 
 TScal_SO <- function(dat) {
   dat$row <- c(1:nrow(dat))
@@ -43,6 +45,7 @@ TScal_SO <- function(dat) {
 #' Based on initial calibration measurment and end calibration measurement
 #' @param dat is a dataframe with rows:Conductivity, Temperature, fixedCond, fixedTemp
 #' @return calibrated dataframe
+#' @export
 
 TScal_RBR <- function(dat) {
   dat$row <- c(1:nrow(dat))
@@ -59,6 +62,7 @@ TScal_RBR <- function(dat) {
 #' @param dat a dataframe with rows:Cond_mspercm, Temp_C, fixedCond, fixedTemp
 #' @param midpoint the row number of the midpoint calibration
 #' @return calibrated dataframe
+#' @export
 
 TSmidcal_SO <- function(dat, midpoint) {
   ln <- nrow(dat)
@@ -84,6 +88,7 @@ TSmidcal_SO <- function(dat, midpoint) {
 #' @param dat is a dataframe with rows:Conductivity, Temperature, fixedCond, fixedTemp
 #' @param midpoint the row number of the midpoint calibration
 #' @return calibrated dataframe
+#' @export
 
 TSmidcal_RBR <- function(dat, midpoint) {
   ln <- nrow(dat)
