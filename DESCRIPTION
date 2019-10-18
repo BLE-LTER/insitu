@@ -1,0 +1,13 @@
+Package: insitu
+Type: Package
+Title: Process BLE-LTER's insitu deployment data
+Version: 0.1.0
+Authors@R: c(
+    person(given='Christina E.', family= 'Bonsell', email='cbonsell@utexas.edu', role=c('aut', 'cre'), comment = c(ORCID = '')), 
+    person(given='An T.', family='Nguyen', email = 'enthusiast@utexas.edu', role = c('aut'))
+    )
+Description: Functions to clean, join, calibrate, and flag BLE-LTER's Core Program insitu deployment data.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
