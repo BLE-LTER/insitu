@@ -96,10 +96,11 @@ outlierTS <- function(dat, tempcol, name) {
 #' @param datename name of column for date, in quotes
 #' @param salname name of column for salinity, in quotes
 #' @param dfname plot title
-#' @return
+#' @param out determines if function will return indexed row numbers, or logical vector
+#' @return either a vector of indexed rownumbers where outliers are, OR a logical vector with length of data, where outlier rownumbers are TRUE
 #' @export
 
-IDoutlier <- function(dat, datename, salname, dfname) {
+IDoutlier <- function(dat, datename, salname, dfname, out) {
   my.col <-
     colorRampPalette(brewer.pal(11, "Spectral"))(diff(range(dat$row)))
   df <- as.data.frame(dat)
@@ -113,8 +114,14 @@ IDoutlier <- function(dat, datename, salname, dfname) {
     ylim = c(0, 45)
   )
   badpts <-
-    identify(df[[datename]], df[[salname]], labels = row.names(df))
-  badpts
+    identify(df[[datename]], df[[salname]], labels = row.names(df)) #opens a plot window where you can click on outlier points
+  badpts_logical <- rep(FALSE, times=nrow(dat))
+  badpts_logical [badpts] <- TRUE
+  if (out=="indexes"){
+    return(badpts)
+  }
+  if (out=="logical")
+    return(badpts_logical)
 }
 
 
