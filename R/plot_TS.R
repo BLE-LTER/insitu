@@ -1,13 +1,15 @@
-#' @title Convert Conductivity to Salinity
-#' @description
+#' @title Initial look at Temperature and Salinity data
+#' @description Returns figure with plots of temperature vs salinity,  salinity over time, and temperature over time
 #' @param Temp (name) column of temperature values in Celsius
 #' @param Sal (name) column of salinity in PSU
 #' @param Date (Date/Time/Datetime)
 #' @param P (numeric) pressure in atm, default is 1
-#' @return side by side plots, first of salinity over time, second of temperature vs salinity with freezing line
+#' @return side by side plots, first of temperature vs salinity with freezing line, second of salinity over time, third of temperature over time
 #' @example plot.TS(test_data,"Temperature","Salinity","DT", plottitle="KALD1")
 #' @export
 #'
+#'
+
 
 plot.TS <- function(df, Temp, Sal, Date, Pres = 1.3, plottitle){
 
@@ -18,13 +20,18 @@ plot.TS <- function(df, Temp, Sal, Date, Pres = 1.3, plottitle){
 
   p1 <- ggplot(df, aes_string(x= Sal, y = Temp, color=Date))+
     geom_point()+
-    scale_color_gradientn(colors = rainbow(100), trans="time")+
+    scale_color_gradientn(colors = viridis(100), trans="time")+
     stat_function(fun = freeze)+
     theme(legend.position = "none")
 
   p2 <- ggplot(df, aes_string(x= Date, y = Sal, color=Date))+
     geom_point()+
-    scale_color_gradientn(colors = rainbow(100), trans="time")+
+    scale_color_gradientn(colors = viridis(100), trans="time")+
+    theme(legend.position = "none")
+
+  p3 <- ggplot(df, aes_string(x= Date, y = Temp, color=Date))+
+    geom_point()+
+    scale_color_gradientn(colors = viridis(100), trans="time")+
     theme(legend.position = "none")
 
   title <- ggdraw() +
@@ -37,14 +44,13 @@ plot.TS <- function(df, Temp, Sal, Date, Pres = 1.3, plottitle){
     theme(
       plot.margin = margin(0, 0, 0, 7)
     )
-  plotrow <- plot_grid(p1, p2, rel_widths = c(1, 1.5))
+
+  plotright <- plot_grid(p2, p3, ncol=1)
+
+  plotrow <- plot_grid(p1, plotright, rel_widths = c(1, 1.5))
 
   plots <- plot_grid(title, plotrow, ncol = 1, rel_heights = c(0.1, 1))
 
   return(plots)
 
 }
-
-
-
-
