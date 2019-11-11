@@ -24,18 +24,18 @@ TScal <- function(instrument_data, ysi_data, station_colname = "station", calibr
   # instrument_data[["date_time"]] <- force_tz(as.POSIXct(instrument_data[["date_time"]]), "Etc/GMT+8")
 
   # merge instrument and ysi data
-  merged <- merge(instrument_data, ysi_data, by = c("station", "date_time"), all.x = TRUE)
-  # return(merged)
+  merged <- merge(instrument_data, ysi_data[c("station", "date_time", calibrate_by)], by = c("station", "date_time"), all.x = TRUE)
+
+  merged <- merged[order(merged[["station"]], merged[["date_time"]]), ]
+
   # initiate
   calibrated_df <- data.frame()
 
   # process by station
   for (i in unique(instrument_data[["station"]])) {
     by_station <- subset(merged, station == i)
-    # return(by_station[["date_time"]])
     by_station <- by_station[order(by_station[["date_time"]]), ]
-    by_station[[calibrated]] <- by_station[[calibrate_by]]
-    # return(by_station[[calibrated]])
+    by_station[[calibrated]] <- by_station[[raw]]
 
     # get the datetimes with calibrated values
     calibrated_rows <- which(!is.na(by_station[[calibrate_by]]))
@@ -53,22 +53,17 @@ TScal <- function(instrument_data, ysi_data, station_colname = "station", calibr
       }
     }
 
-    m <- 1
-    return(calibrated_rows)
-
-
-    while (m < length(calibrated_rows)) {
+   for (m in 1:(length(calibrated_rows) - 1)) {
       rowfirst <- calibrated_rows[m]
       rowlast <- calibrated_rows[m + 1]
       by_station[[calibrated]][rowfirst:rowlast] <-
         TS.adj(
           raw = by_station[[raw]][rowfirst:rowlast],
           calib = by_station[[calibrate_by]][rowfirst:rowlast],
-          rowfirst = rowfirst,
-          rowlast = rowlast,
-          rownums = rowfirst:rowlast
+          rowfirst = 1,
+          rowlast = rowlast - rowfirst + 1,
+          rownums = 1:(rowlast - rowfirst + 1)
         )
-      m <- m + 1
     } # end while loop
     calibrated_df <- rbind(calibrated_df, by_station)
   } # end for loop
