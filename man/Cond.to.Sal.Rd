@@ -2,17 +2,20 @@
 % Please edit documentation in R/CondtoSal_miliS.R
 \name{Cond.to.Sal}
 \alias{Cond.to.Sal}
-\title{Convert Conductivity to Salinity
-using equations from UNESCO 1983. Taken from James Douglass's Excel sheet}
+\title{Convert Conductivity to Salinity}
 \usage{
-Cond.to.Sal(cond, temp)
+Cond.to.Sal(cond, temp, ref_cond = 42.9)
 }
 \arguments{
-\item{cond}{Conductivity in miliSeimens/m^2/s}
+\item{cond}{(numeric) Numeric vector of conductivity values in miliSeimens/m^2/s.}
 
-\item{temp}{Temperature in Celsius}
+\item{temp}{(numeric) Numeric vector of temperature values in degree Celsius.}
+
+\item{ref_cond}{(numeric) Reference conductivity value, defaults to 42.9 for conductivity measured in miliSeimens/m^2/s.}
+}
+\value{
+(numeric) Vector of salinity values calculated from each pair of cond and temp values in input vectors. Unit varies depend on unit for conductivity, defaults to  PSU.
 }
 \description{
-Convert Conductivity to Salinity
-using equations from UNESCO 1983. Taken from James Douglass's Excel sheet
+Calculate salinity from conductivitity and temperature, using equations from UNESCO 1983. Taken from James Douglass's Excel sheet.
 }

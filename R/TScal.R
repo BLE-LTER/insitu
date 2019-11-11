@@ -6,9 +6,7 @@
 #' @param raw (character) Name of value column in instrument data (raw data). Defaults to "temperature".
 #' @param calibrated (character) Name of column to store calibrated data. Default to "_calibrated" appended to the raw column.
 #' @param some_missing (logical) T/F on whether to calibrate where there are beginning or end dates that do not have calibrated values (e.g. if the instrument was put down on June 1 but there's no calibration data until July 1). If TRUE, function will assume the instrument data on the first/last dates are true and use them as calibration points. If FALSE, the time portions prior or after the first/last calibration values will not altered. Defaults to TRUE.
-#' @importFrom lubridate force_tz as.POSIXct round.POSIXct
-
-# ysi data will have a datetime column that gets rounded to the nearest hour? and gets matched up to the instrument date time and then we calibrate by however many rows ysi has
+#' @importFrom lubridate force_tz
 
 TScal <- function(instrument_data, ysi_data, station_colname = "station", calibrate_by = "value", raw = "temperature", calibrated = paste0(raw, "_calibrated"), some_missing = TRUE) {
 
