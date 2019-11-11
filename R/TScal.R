@@ -8,63 +8,80 @@
 #' @param some_missing (logical) T/F on whether to calibrate where there are beginning or end dates that do not have calibrated values (e.g. if the instrument was put down on June 1 but there's no calibration data until July 1). If TRUE, function will assume the instrument data on the first/last dates are true and use them as calibration points. If FALSE, the time portions prior or after the first/last calibration values will not altered. Defaults to TRUE.
 #' @importFrom lubridate force_tz
 
-TScal <- function(instrument_data, ysi_data, station_colname = "station", calibrate_by = "value", raw = "temperature", calibrated = paste0(raw, "_calibrated"), some_missing = TRUE) {
+TScal <-
+  function(instrument_data,
+           ysi_data,
+           station_colname = "station",
+           calibrate_by = "value",
+           raw = "temperature",
+           calibrated = paste0(raw, "_calibrated"),
+           some_missing = TRUE) {
 
-  # first reformat col names in ysi to make sure they are all lowercase
-  colnames(ysi_data) <-
-    tolower(gsub("\\.", "\\_", colnames(ysi_data)))
-  names(ysi_data)[grep("time", names(ysi_data))] <- "date_time"
+    # first reformat col names in ysi to all lowercase
+    colnames(ysi_data) <-
+      tolower(gsub("\\.", "\\_", colnames(ysi_data)))
+    names(ysi_data)[grep("time|DT", names(ysi_data))] <- "date_time"
 
     # round ysi datetimes to nearest hour, force to standard Alaska timezone
-  ysi_data[["date_time"]] <- force_tz(as.POSIXct(round.POSIXt(ysi_data[["date_time"]], units = "hours")), "Etc/GMT+8")
-  ysi_data <- ysi_data[!is.na(ysi_data[["date_time"]]), ]
-  # do the same for instrument data
-  # instrument_data[["date_time"]] <- force_tz(as.POSIXct(instrument_data[["date_time"]]), "Etc/GMT+8")
+    ysi_data[["date_time"]] <-
+      force_tz(as.POSIXct(round.POSIXt(ysi_data[["date_time"]], units = "hours")), "Etc/GMT+8")
+    ysi_data <- ysi_data[!is.na(ysi_data[["date_time"]]),]
+    # do the same for instrument data
+    # instrument_data[["date_time"]] <- force_tz(as.POSIXct(instrument_data[["date_time"]]), "Etc/GMT+8")
 
-  # merge instrument and ysi data
-  merged <- merge(instrument_data, ysi_data[c("station", "date_time", calibrate_by)], by = c("station", "date_time"), all.x = TRUE)
+    # merge instrument and ysi data, keeping all instrument data points, only keeping relevant YSI columns
+    merged <-
+      merge(
+        instrument_data,
+        ysi_data[c("station", "date_time", calibrate_by)],
+        by = c("station", "date_time"),
+        all.x = TRUE
+      )
 
-  merged <- merged[order(merged[["station"]], merged[["date_time"]]), ]
+    merged <-
+      merged[order(merged[["station"]], merged[["date_time"]]),]
 
-  # initiate
-  calibrated_df <- data.frame()
+    # initiate output df
+    calibrated_df <- data.frame()
 
-  # process by station
-  for (i in unique(instrument_data[["station"]])) {
-    by_station <- subset(merged, station == i)
-    by_station <- by_station[order(by_station[["date_time"]]), ]
-    by_station[[calibrated]] <- by_station[[raw]]
+    # loop by station
+    for (i in unique(instrument_data[["station"]])) {
+      by_station <- subset(merged, station == i)
+      by_station <- by_station[order(by_station[["date_time"]]),]
+      by_station[[calibrated]] <- by_station[[raw]]
 
-    # get the datetimes with calibrated values
-    calibrated_rows <- which(!is.na(by_station[[calibrate_by]]))
-    num_rows <- nrow(by_station)
+      # get the datetimes with calibrated values
+      calibrated_rows <- which(!is.na(by_station[[calibrate_by]]))
+      num_rows <- nrow(by_station)
 
-    # copy over first/last if some_missing == TRUE and add first/last to calibrated points
-    if (some_missing) {
-      if (is.na(by_station[[calibrate_by]][1])) {
-        by_station[[calibrate_by]][1] <- by_station[[raw]][1]
-        calibrated_rows <- c(1, calibrated_rows)
+      # copy over first/last if some_missing == TRUE and add first/last to calibrated points
+      if (some_missing) {
+        if (is.na(by_station[[calibrate_by]][1])) {
+          by_station[[calibrate_by]][1] <- by_station[[raw]][1]
+          calibrated_rows <- c(1, calibrated_rows)
+        }
+        if (is.na(by_station[[calibrate_by]][num_rows])) {
+          by_station[[calibrate_by]][num_rows] <- by_station[[raw]][num_rows]
+          calibrated_rows <- c(calibrated_rows, num_rows)
+        }
       }
-      if (is.na(by_station[[calibrate_by]][num_rows])) {
-        by_station[[calibrate_by]][num_rows] <- by_station[[raw]][num_rows]
-        calibrated_rows <- c(calibrated_rows, num_rows)
-      }
-    }
 
-   for (m in 1:(length(calibrated_rows) - 1)) {
-      rowfirst <- calibrated_rows[m]
-      rowlast <- calibrated_rows[m + 1]
-      by_station[[calibrated]][rowfirst:rowlast] <-
-        TS.adj(
-          raw = by_station[[raw]][rowfirst:rowlast],
-          calib = by_station[[calibrate_by]][rowfirst:rowlast],
-          rowfirst = 1,
-          rowlast = rowlast - rowfirst + 1,
-          rownums = 1:(rowlast - rowfirst + 1)
-        )
-    } # end while loop
-    calibrated_df <- rbind(calibrated_df, by_station)
-  } # end for loop
+      # loop over the number of calibration points
+      for (m in 1:(length(calibrated_rows) - 1)) {
+        rowfirst <- calibrated_rows[m]
+        rowlast <- calibrated_rows[m + 1]
+        # call TS.adj. note that since we'll calling it on a subset of raw and calib, index gets reset and rowfirst needs to be 1
+        by_station[[calibrated]][rowfirst:rowlast] <-
+          TS.adj(
+            raw = by_station[[raw]][rowfirst:rowlast],
+            calib = by_station[[calibrate_by]][rowfirst:rowlast],
+            rowfirst = 1,
+            rowlast = rowlast - rowfirst + 1,
+            rownums = 1:(rowlast - rowfirst + 1)
+          )
+      } # end calibration points for loop
+      calibrated_df <- rbind(calibrated_df, by_station)
+    } # end station for loop
 
-  return(calibrated_df)
-}
+    return(calibrated_df)
+  }
