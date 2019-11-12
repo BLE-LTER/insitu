@@ -3,13 +3,14 @@
 #' @param data_type (character) Name of data type. Processing will differ according to data type. Accepted input: "CTD" for conductivity-temperature-depth, or "TCM" for tilt current meter.
 #' @param instrument_type (character) Name of instrument (only applies for "CTD" data type). Processing will differ according to instrument. Accepted input: "RBR", "SO".
 #' @param param_type (character) Name of parameter type (only applies for "TCM" data type). Processing will differ according to parameter. Accepted inputs: "temp", "current".
-#' @param column_names (character) Optional.
+#' @param column_names (character) Optional. This actually doesn't do anything atm FYI.
 #'
 #' @importFrom purrr map_df
-#' @importFrom readr read_table2
+#' @importFrom data.table fread
 #' @importFrom readxl read_excel
 #' @importFrom stringr str_extract
 #' @importFrom lubridate as_datetime dmy_hms
+#' @export
 
 import_data <-
   function(file_list,
@@ -22,6 +23,7 @@ import_data <-
 
     if (data_type == "CTD") {
       if (instrument_type == "RBR") {
+
         ########################
         # do RBR import things #
         ########################
@@ -31,7 +33,8 @@ import_data <-
                        .id = "file_name")
         data <- data.frame(
           station = str_extract(data[["file_name"]], station_code_pattern),
-          date_time = dmy_hms(data[["Timestamp"]], tz = "Etc/GMT+8"), # note: positive sign here actually means places behind Greenwich (west). this produces a negative -8 offset in the actual values
+          date_time = dmy_hms(data[["Timestamp"]], tz = "Etc/GMT+8"), # note: positive sign here actually means places behind Greenwich (west). this produces a negative -8 offset in the actual timezones stored within these values
+
           data[3:11]
         )
         # reformat column names to lowercase and underscores for spaces
@@ -40,35 +43,26 @@ import_data <-
         return(data)
 
       } else if (instrument_type == "SO") {
+
         ##############################
         # do Star Oddi import things #
         ##############################
         data <-
           map_df(
             file_list,
-            read_table2,
-            col_names = FALSE,
-            .id = "file_name",
-            col_types = cols(
-              X4 = col_character(),
-              X5 = col_character(),
-              X6 = col_character(),
-              X7 = col_character()
-            )
+            data.table::fread,
+            header = FALSE,
+            dec = ",", # these data sheets use decimal comma
+            .id = "file_name"
           )
-        # replace the decimal comma with the decimal period
-        data[5:8] <-
-          lapply(data[5:8], function(x)
-            sub(",", ".", x, fixed = TRUE))
+
         data <- data.frame(
           station = str_extract(data[["file_name"]], station_code_pattern),
-          date_time = as_datetime(paste(
-            as.Date(data[["X2"]], format = "%d.%m.%Y"), data[["X3"]]
-          )),
-          temperature = data[["X4"]],
-          salinity = data[["X5"]],
-          conductivity = data[["X6"]],
-          sound_velocity = data[["X7"]]
+          date_time = dmy_hms(data[["V2"]], tz = "Etc/GMT+8"),
+          temperature = data[["V3"]],
+          salinity = data[["V4"]],
+          conductivity = data[["V5"]],
+          sound_velocity = data[["V6"]]
         )
         return(data)
 
@@ -82,6 +76,7 @@ import_data <-
         )
 
     } else if (data_type == "TCM") {
+
       ########################
       # do TCM import things #
       ########################
@@ -116,7 +111,7 @@ import_data <-
           paste0(
             "Parameter type ",
             param_type,
-            "not supported. Please enter a supported instrument type."
+            "not supported. Please enter a supported parameter type."
           )
         )
     } else
