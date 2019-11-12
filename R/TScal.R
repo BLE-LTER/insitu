@@ -1,7 +1,7 @@
 #' @title Calibrate instrument data according to referenced points
 #' @description When supplied with a df of instrument data and a df of data to calibrate by (e.g. YSI data), this function matches the two sets of data up by station and datetime (rounded to the nearest hour), then call TS.adj to apply linear adjustment between however many pairs of calibration points applicable.
-#' @param instrument_data (data.frame) Data frame of instrument data (that needs to be calibrated). Required column names are "station", "date_time" in POSIXct format.
-#' @param ysi_data (data.frame) Data frame of measurements to calibrate by (often by a YSI). Required column names are "station", "date_time". "date_time" in POSIXct format.
+#' @param instrument_data (data.frame) Data frame of instrument data (that needs to be calibrated). Required column names are "station", "date_time" in POSIXct format. YYYY-MM-DD hh:mm:ss would be helpful.
+#' @param ysi_data (data.frame) Data frame of measurements to calibrate by (often by a YSI). Required column names are "station", "date_time". "date_time" in POSIXct format. YYYY-MM-DD hh:mm:ss would be helpful.
 #' @param cal_by (character) Name of value column in YSI data (data to calibrate by). Defaults to "value". This column and the raw column should be measurements of the same thing, e.g. temperature.
 #' @param raw (character) Name of value column in instrument data (raw data). Defaults to "temperature".
 #' @param calibrated (character) Name of column to store output calibrated data. Default to "_calibrated" appended to the raw column name.
@@ -24,7 +24,7 @@ TScal <-
 
     # round ysi datetimes to nearest hour, force to standard Alaska timezone
     ysi_data[["date_time"]] <-
-      force_tz(as.POSIXct(round.POSIXt(ysi_data[["date_time"]], units = "hours")), "Etc/GMT+8")
+      force_tz(round.POSIXt(ysi_data[["date_time"]], units = "hours"), "Etc/GMT+8")
     ysi_data <- ysi_data[!is.na(ysi_data[["date_time"]]),]
     # do the same for instrument data
     # instrument_data[["date_time"]] <- force_tz(as.POSIXct(instrument_data[["date_time"]]), "Etc/GMT+8")
