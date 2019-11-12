@@ -1,18 +1,18 @@
-#' Calibrate temperature and salinity data
-#' @param instrument_data (data.frame) Data frame of instrument data (that needs to be calibrated). Required column names are "date_time", "temperature", "conductivity". "date_time" column needs to be in POSIXct format.
-#' @param ysi_data (data.frame) Data frame of measurements to calibrate by (often by a YSI). Required column names are "date_time", "temperature", "conductivity". "date_time" column needs to be in POSIXct format.
-#' @param station_colname (character) Name of station code column in YSI data. Defaults to "station".
-#' @param calibrate_by (character) Name of value column in YSI data (data to calibrate by). Defaults to "value". This column and the raw column should be measurements of the same thing, e.g. temperature.
+#' @title Calibrate instrument data according to referenced points
+#' @description When supplied with a df of instrument data and a df of data to calibrate by (e.g. YSI data), this function matches the two sets of data up by station and datetime (rounded to the nearest hour), then call TS.adj to apply linear adjustment between however many pairs of calibration points applicable.
+#' @param instrument_data (data.frame) Data frame of instrument data (that needs to be calibrated). Required column names are "station", "date_time" in POSIXct format.
+#' @param ysi_data (data.frame) Data frame of measurements to calibrate by (often by a YSI). Required column names are "station", "date_time". "date_time" in POSIXct format.
+#' @param cal_by (character) Name of value column in YSI data (data to calibrate by). Defaults to "value". This column and the raw column should be measurements of the same thing, e.g. temperature.
 #' @param raw (character) Name of value column in instrument data (raw data). Defaults to "temperature".
-#' @param calibrated (character) Name of column to store calibrated data. Default to "_calibrated" appended to the raw column.
-#' @param some_missing (logical) T/F on whether to calibrate where there are beginning or end dates that do not have calibrated values (e.g. if the instrument was put down on June 1 but there's no calibration data until July 1). If TRUE, function will assume the instrument data on the first/last dates are true and use them as calibration points. If FALSE, the time portions prior or after the first/last calibration values will not altered. Defaults to TRUE.
+#' @param calibrated (character) Name of column to store output calibrated data. Default to "_calibrated" appended to the raw column name.
+#' @param some_missing (logical) TRUE/FALSE on whether to calibrate where there are beginning or end dates that do not have calibrated values (e.g. if the instrument was deployed on June 1 but there's no calibration data until July 1). If TRUE, function will assume the instrument data on the first/last dates are true and use them as calibration points. If FALSE, the time portions prior or after the first/last calibration values will not altered. Defaults to TRUE.
 #' @importFrom lubridate force_tz
+#' @export
 
 TScal <-
   function(instrument_data,
            ysi_data,
-           station_colname = "station",
-           calibrate_by = "value",
+           cal_by = "value",
            raw = "temperature",
            calibrated = paste0(raw, "_calibrated"),
            some_missing = TRUE) {
@@ -33,55 +33,60 @@ TScal <-
     merged <-
       merge(
         instrument_data,
-        ysi_data[c("station", "date_time", calibrate_by)],
+        ysi_data[c("station", "date_time", cal_by)],
         by = c("station", "date_time"),
         all.x = TRUE
       )
-
+    # reorder by station then date, since we're calibrating by row order
     merged <-
       merged[order(merged[["station"]], merged[["date_time"]]),]
 
     # initiate output df
-    calibrated_df <- data.frame()
+    output <- data.frame()
 
     # loop by station
     for (i in unique(instrument_data[["station"]])) {
       by_station <- subset(merged, station == i)
-      by_station <- by_station[order(by_station[["date_time"]]),]
-      by_station[[calibrated]] <- by_station[[raw]]
+      raw_col <- by_station[[raw]]
+      cal_by_col <- by_station[[cal_by]]
+      by_station[[calibrated]] <- raw_col
 
       # get the datetimes with calibrated values
-      calibrated_rows <- which(!is.na(by_station[[calibrate_by]]))
+      cal_by_rows <- which(!is.na(cal_by_col))
       num_rows <- nrow(by_station)
 
       # copy over first/last if some_missing == TRUE and add first/last to calibrated points
       if (some_missing) {
-        if (is.na(by_station[[calibrate_by]][1])) {
-          by_station[[calibrate_by]][1] <- by_station[[raw]][1]
-          calibrated_rows <- c(1, calibrated_rows)
+        if (is.na(cal_by_col[1])) {
+          cal_by_col[1] <- raw_col[1]
+          cal_by_rows <- c(1, cal_by_rows)
         }
-        if (is.na(by_station[[calibrate_by]][num_rows])) {
-          by_station[[calibrate_by]][num_rows] <- by_station[[raw]][num_rows]
-          calibrated_rows <- c(calibrated_rows, num_rows)
+        if (is.na(cal_by_col[num_rows])) {
+          cal_by_col[num_rows] <- raw_col[num_rows]
+          cal_by_rows <- c(cal_by_rows, num_rows)
         }
       }
 
       # loop over the number of calibration points
-      for (m in 1:(length(calibrated_rows) - 1)) {
-        rowfirst <- calibrated_rows[m]
-        rowlast <- calibrated_rows[m + 1]
+      for (m in 1:(length(cal_by_rows) - 1)) {
+
+        cal_start <- cal_by_rows[m]
+        cal_end <- cal_by_rows[m + 1]
+
         # call TS.adj. note that since we'll calling it on a subset of raw and calib, index gets reset and rowfirst needs to be 1
-        by_station[[calibrated]][rowfirst:rowlast] <-
+        by_station[[calibrated]][cal_start:cal_end] <-
           TS.adj(
-            raw = by_station[[raw]][rowfirst:rowlast],
-            calib = by_station[[calibrate_by]][rowfirst:rowlast],
+            raw = raw_col[cal_start:cal_end],
+            calib = cal_by_col[cal_start:cal_end],
             rowfirst = 1,
-            rowlast = rowlast - rowfirst + 1,
-            rownums = 1:(rowlast - rowfirst + 1)
+            rowlast = cal_end - cal_start + 1,
+            rownums = 1:(cal_end - cal_start + 1)
           )
       } # end calibration points for loop
-      calibrated_df <- rbind(calibrated_df, by_station)
+
+      # append data to output df
+      output <- rbind(output, by_station)
     } # end station for loop
 
-    return(calibrated_df)
+    return(output)
   }
