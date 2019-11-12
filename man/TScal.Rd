@@ -2,27 +2,24 @@
 % Please edit documentation in R/TScal.R
 \name{TScal}
 \alias{TScal}
-\title{Calibrate temperature and salinity data}
+\title{Calibrate instrument data according to referenced points}
 \usage{
-TScal(instrument_data, ysi_data, station_colname = "station",
-  calibrate_by = "value", raw = "temperature",
+TScal(instrument_data, ysi_data, cal_by = "value", raw = "temperature",
   calibrated = paste0(raw, "_calibrated"), some_missing = TRUE)
 }
 \arguments{
-\item{instrument_data}{(data.frame) Data frame of instrument data (that needs to be calibrated). Required column names are "date_time", "temperature", "conductivity". "date_time" column needs to be in POSIXct format.}
+\item{instrument_data}{(data.frame) Data frame of instrument data (that needs to be calibrated). Required column names are "station", "date_time" in POSIXct format.}
 
-\item{ysi_data}{(data.frame) Data frame of measurements to calibrate by (often by a YSI). Required column names are "date_time", "temperature", "conductivity". "date_time" column needs to be in POSIXct format.}
+\item{ysi_data}{(data.frame) Data frame of measurements to calibrate by (often by a YSI). Required column names are "station", "date_time". "date_time" in POSIXct format.}
 
-\item{station_colname}{(character) Name of station code column in YSI data. Defaults to "station".}
-
-\item{calibrate_by}{(character) Name of value column in YSI data (data to calibrate by). Defaults to "value". This column and the raw column should be measurements of the same thing, e.g. temperature.}
+\item{cal_by}{(character) Name of value column in YSI data (data to calibrate by). Defaults to "value". This column and the raw column should be measurements of the same thing, e.g. temperature.}
 
 \item{raw}{(character) Name of value column in instrument data (raw data). Defaults to "temperature".}
 
-\item{calibrated}{(character) Name of column to store calibrated data. Default to "_calibrated" appended to the raw column.}
+\item{calibrated}{(character) Name of column to store output calibrated data. Default to "_calibrated" appended to the raw column name.}
 
-\item{some_missing}{(logical) T/F on whether to calibrate where there are beginning or end dates that do not have calibrated values (e.g. if the instrument was put down on June 1 but there's no calibration data until July 1). If TRUE, function will assume the instrument data on the first/last dates are true and use them as calibration points. If FALSE, the time portions prior or after the first/last calibration values will not altered. Defaults to TRUE.}
+\item{some_missing}{(logical) TRUE/FALSE on whether to calibrate where there are beginning or end dates that do not have calibrated values (e.g. if the instrument was deployed on June 1 but there's no calibration data until July 1). If TRUE, function will assume the instrument data on the first/last dates are true and use them as calibration points. If FALSE, the time portions prior or after the first/last calibration values will not altered. Defaults to TRUE.}
 }
 \description{
-Calibrate temperature and salinity data
+When supplied with a df of instrument data and a df of data to calibrate by (e.g. YSI data), this function matches the two sets of data up by station and datetime (rounded to the nearest hour), then call TS.adj to apply linear adjustment between however many pairs of calibration points applicable.
 }

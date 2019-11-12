@@ -4,7 +4,6 @@
 #' @param temp (numeric) Numeric vector of temperature values in degree Celsius.
 #' @param ref_cond (numeric) Reference conductivity value, defaults to 42.9 for conductivity measured in miliSeimens/m^2/s.
 #' @return (numeric) Vector of salinity values calculated from each pair of cond and temp values in input vectors. Unit varies depend on unit for conductivity, defaults to  PSU.
-#' @example Cond.to.Sal(c(33.2, 32.4), c(1.3, 1.2))
 #' @export
 
 Cond.to.Sal <- function(cond, temp, ref_cond = 42.9){

@@ -16,7 +16,7 @@ import_data(file_list, data_type, instrument_type, param_type,
 
 \item{param_type}{(character) Name of parameter type (only applies for "TCM" data type). Processing will differ according to parameter. Accepted inputs: "temp", "current".}
 
-\item{column_names}{(character) Optional.}
+\item{column_names}{(character) Optional. This actually doesn't do anything atm FYI.}
 }
 \description{
 Import data from instrument-generated files.
