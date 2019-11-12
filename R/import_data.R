@@ -35,7 +35,8 @@ import_data <-
           station = str_extract(data[["file_name"]], station_code_pattern),
           date_time = dmy_hms(data[["Timestamp"]], tz = "Etc/GMT+8"), # note: positive sign here actually means places behind Greenwich (west). this produces a negative -8 offset in the actual timezones stored within these values
 
-          data[3:11]
+          data[3:11],
+          stringsAsFactors = FALSE
         )
         # reformat column names to lowercase and underscores for spaces
         colnames(data) <-
@@ -62,7 +63,8 @@ import_data <-
           temperature = data[["V3"]],
           salinity = data[["V4"]],
           conductivity = data[["V5"]],
-          sound_velocity = data[["V6"]]
+          sound_velocity = data[["V6"]],
+          stringsAsFactors = FALSE
         )
         return(data)
 
@@ -88,7 +90,8 @@ import_data <-
         data <- data.frame(
           station = str_extract(data[["file_name"]], station_code_pattern),
           date_time = data[["ISO 8601 Time"]],
-          temperature = data[["Temperature (C)"]]
+          temperature = data[["Temperature (C)"]],
+          stringsAsFactors = FALSE
         )
         return(data)
 
@@ -102,7 +105,8 @@ import_data <-
           speed = data[["Speed (cm/s)"]],
           heading = data[["Heading (degrees)"]],
           velocity_north = data[["Velocity-N (cm/s)"]],
-          velocity_east = data[["Velocity-E (cm/s)"]]
+          velocity_east = data[["Velocity-E (cm/s)"]],
+          stringsAsFactors = FALSE
         )
         return(data)
 
