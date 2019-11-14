@@ -6,7 +6,7 @@
 #' @return (numeric) Vector of salinity values calculated from each pair of cond and temp values in input vectors. Unit varies depend on unit for conductivity, defaults to  PSU.
 #' @export
 
-Cond.to.Sal <- function(cond, temp, ref_cond = 42.9){
+calculate_salinity <- function(cond, temp, ref_cond = 42.9){
 
   if (length(cond) != length(temp)) error("Please supply vectors of same lengths for cond and sal.")
   if (length(ref_cond) > 1) error("Please supply only one reference conductivity.")
