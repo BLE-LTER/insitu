@@ -9,7 +9,7 @@
 #' @importFrom lubridate force_tz
 #' @export
 
-TScal <-
+calibrate_data <-
   function(instrument_data,
            ysi_data,
            cal_by = "value",
