@@ -22,5 +22,5 @@ calibrate_data(instrument_data, ysi_data, cal_by = "value",
 \item{some_missing}{(logical) TRUE/FALSE on whether to calibrate where there are beginning or end dates that do not have calibrated values (e.g. if the instrument was deployed on June 1 but there's no calibration data until July 1). If TRUE, function will assume the instrument data on the first/last dates are true and use them as calibration points. If FALSE, the time portions prior or after the first/last calibration values will not altered. Defaults to TRUE.}
 }
 \description{
-When supplied with a df of instrument data and a df of data to calibrate by (e.g. YSI data), this function matches the two sets of data up by station and datetime (rounded to the nearest hour), then call TS.adj to apply linear adjustment between however many pairs of calibration points applicable.
+When supplied with a df of instrument data and a df of data to calibrate by (e.g. YSI data), this function matches the two sets of data up by station and datetime (rounded to the nearest hour), then call adjust_linear to apply linear adjustment between however many pairs of calibration points applicable.
 }

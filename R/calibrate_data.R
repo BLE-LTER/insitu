@@ -1,5 +1,5 @@
 #' @title Calibrate instrument data according to referenced points
-#' @description When supplied with a df of instrument data and a df of data to calibrate by (e.g. YSI data), this function matches the two sets of data up by station and datetime (rounded to the nearest hour), then call TS.adj to apply linear adjustment between however many pairs of calibration points applicable.
+#' @description When supplied with a df of instrument data and a df of data to calibrate by (e.g. YSI data), this function matches the two sets of data up by station and datetime (rounded to the nearest hour), then call adjust_linear to apply linear adjustment between however many pairs of calibration points applicable.
 #' @param instrument_data (data.frame) Data frame of instrument data (that needs to be calibrated). Required column names are "station", "date_time" in POSIXct format. YYYY-MM-DD hh:mm:ss would be helpful.
 #' @param ysi_data (data.frame) Data frame of measurements to calibrate by (often by a YSI). Required column names are "station", "date_time". "date_time" in POSIXct format. YYYY-MM-DD hh:mm:ss would be helpful.
 #' @param cal_by (character) Name of value column in YSI data (data to calibrate by). Defaults to "value". This column and the raw column should be measurements of the same thing, e.g. temperature.
@@ -73,9 +73,9 @@ calibrate_data <-
         cal_start <- cal_by_rows[m]
         cal_end <- cal_by_rows[m + 1]
 
-        # call TS.adj. note that since we'll calling it on a subset of raw and calib, index gets reset and rowfirst needs to be 1
+        # call adjust_linear. note that since we'll calling it on a subset of raw and calib, index gets reset and rowfirst needs to be 1
         by_station[[calibrated]][cal_start:cal_end] <-
-          TS.adj(
+          adjust_linear(
             raw = raw_col[cal_start:cal_end],
             calib = cal_by_col[cal_start:cal_end],
             rowfirst = 1,

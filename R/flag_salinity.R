@@ -15,7 +15,7 @@ flag_salinity <- function(data, tempcol = "temperature", condcol = "conductivity
 
     posTerror <- data[[tempcol]] + Terror
   posCerror <- data[[condcol]] + Cerror
-  pCpTSalerror <- Cond.to.Sal(posCerror, posTerror)
+  pCpTSalerror <- calculate_salinity(posCerror, posTerror)
 
   # data is "anomalous" if data +C+T error is below the freezing line
   data[["anomalous"]] <-
