@@ -13,7 +13,7 @@ calibrate_data(instrument_data, ysi_data, cal_by = "value",
 
 \item{ysi_data}{(data.frame) Data frame of measurements to calibrate by (often by a YSI). Required column names are "station", "date_time". "date_time" in POSIXct format. YYYY-MM-DD hh:mm:ss would be helpful. There's some leeway with column names: "date_time": having a column name with "time" or "DT" in it is sufficient.}
 
-\item{cal_by}{(character) Name of value column in YSI data (data to calibrate by). Defaults to "value". This column and the raw column should be measurements of the same thing, e.g. temperature.}
+\item{cal_by}{(character) Name of value column in YSI data (data to calibrate by). Defaults to "value". This column and the raw column should be measurements of the same thing, e.g. temperature. Note that if this column name is identical to the raw column name in instrument_data, "_ysi" will be appended to the column name in the output dataframe.}
 
 \item{raw}{(character) Name of value column in instrument data (raw data). Defaults to "temperature".}
 

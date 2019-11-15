@@ -5,7 +5,7 @@
 \title{Identify and flag invalid ("anomalous") data based on freezing line}
 \usage{
 flag_salinity(data, tempcol = "temperature", condcol = "conductivity",
-  Terror, Cerror, flag_scheme = NULL)
+  Terror, Cerror, flag_scheme = c("valid", "invalid"))
 }
 \arguments{
 \item{data}{(data.frame) Data to be flagged.}
@@ -18,10 +18,10 @@ flag_salinity(data, tempcol = "temperature", condcol = "conductivity",
 
 \item{Cerror}{(numeric) Precision for conductivity.}
 
-\item{flag_scheme}{(character) Scheme for flagging anomalous salinity values. Defaults to NULL and outputs a logical TRUE/FALSE column. Alternatively supply a vector of two character flags to denote good/bad data respectively, e.g. c("valid", "invalid").}
+\item{flag_scheme}{(character) Scheme for flagging anomalous salinity values. Supply a vector of character flags to denote good/bad data respectively, e.g. c("valid", "invalid"). The first two will be used. IF NULL function will output a logical TRUE/FALSE column.}
 }
 \value{
-(data.frame) The input dataframe with new columns added: "anomalous" (logical) indicating anomalous values, "salinity" (named according to input argument salcol) for calculated salinity.
+(data.frame) The input dataframe with a new column added: "anomalous" (character or logical) indicating anomalous values.
 }
 \description{
 Calculates the salinity error based on the innate loggger conductivity and temperature error margins.
