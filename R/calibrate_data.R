@@ -20,7 +20,7 @@ calibrate_data <-
     # first reformat col names in ysi to all lowercase
     colnames(ysi_data) <-
       tolower(gsub("\\.", "\\_", colnames(ysi_data)))
-    names(ysi_data)[grep("time|DT", names(ysi_data))] <- "date_time"
+    names(ysi_data)[grep("time|dt", names(ysi_data), ignore.case = TRUE)] <- "date_time"
 
     # round ysi datetimes to nearest hour, force to standard Alaska timezone
     ysi_data[["date_time"]] <-
