@@ -11,7 +11,7 @@
 #'
 
 
-plot.TS <- function(df, Temp, Sal, Date, Pres = 1.3, plottitle){
+plot_tempsal <- function(df, Temp, Sal, Date, Pres = 1.3, plottitle){
 
   freeze <- function(S,P = Pres){ # create equation for freezing line
     TF <-  (-0.0575 + 1.710523E-3 * sqrt(abs(S)) - 2.154996E-4 * S) * S - 7.53E-4 * (P*10.132501)
