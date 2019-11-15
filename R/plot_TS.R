@@ -1,14 +1,13 @@
-#' @title Initial look at Temperature and Salinity data
+#'  Initial look at Temperature and Salinity data
 #' @description Returns figure with plots of temperature vs salinity,  salinity over time, and temperature over time
-#' @param Temp (name) column of temperature values in Celsius
-#' @param Sal (name) column of salinity in PSU
-#' @param Date (Date/Time/Datetime)
+#' @param Temp (character) column name of temperature values in Celsius
+#' @param Sal (character) column name of salinity
+#' @param Date (dttm) column name of date or date time
 #' @param P (numeric) pressure in atm, default is 1
 #' @return side by side plots, first of temperature vs salinity with freezing line, second of salinity over time, third of temperature over time
 #' @example plot.TS(test_data,"Temperature","Salinity","DT", plottitle="KALD1")
 #' @export
-#'
-#'
+
 
 
 plot_tempsal <- function(df, Temp, Sal, Date, Pres = 1.3, plottitle){
