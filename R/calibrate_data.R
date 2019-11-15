@@ -1,7 +1,7 @@
 #' @title Calibrate instrument data according to referenced points
 #' @description When supplied with a df of instrument data and a df of data to calibrate by (e.g. YSI data), this function matches the two sets of data up by station and datetime (rounded to the nearest hour), then call adjust_linear to apply linear adjustment between however many pairs of calibration points applicable.
 #' @param instrument_data (data.frame) Data frame of instrument data (that needs to be calibrated). Required column names are "station", "date_time" in POSIXct format. YYYY-MM-DD hh:mm:ss would be helpful.
-#' @param ysi_data (data.frame) Data frame of measurements to calibrate by (often by a YSI). Required column names are "station", "date_time". "date_time" in POSIXct format. YYYY-MM-DD hh:mm:ss would be helpful.
+#' @param ysi_data (data.frame) Data frame of measurements to calibrate by (often by a YSI). Required column names are "station", "date_time". "date_time" in POSIXct format. YYYY-MM-DD hh:mm:ss would be helpful. There's some leeway with column names: "date_time": having a column name with "time" or "DT" in it is sufficient.
 #' @param cal_by (character) Name of value column in YSI data (data to calibrate by). Defaults to "value". This column and the raw column should be measurements of the same thing, e.g. temperature.
 #' @param raw (character) Name of value column in instrument data (raw data). Defaults to "temperature".
 #' @param calibrated (character) Name of column to store output calibrated data. Default to "_calibrated" appended to the raw column name.
@@ -17,15 +17,48 @@ calibrate_data <-
            calibrated = paste0(raw, "_calibrated"),
            some_missing = TRUE) {
 
-    # first reformat col names in ysi to all lowercase
+
+    # check for dfs
+    if (!is.data.frame(instrument_data))
+      stop("instrument_data not data.frame")
+    if (!is.data.frame(ysi_data))
+      stop("ysi_data not data.frame")
+    if (!cal_by %in% names(ysi_data))
+      stop(paste(cal_by, "not a column in ysi_data"))
+
+    # check for expected cols in ysi
+    if (!any(grepl("time|dt", names(ysi_data), ignore.case = TRUE)))
+      stop("no columns vaguely resembling date_time detected in ysi_data")
+    if (!"station" %in% names(instrument_data))
+      stop("station not a column in ysi_data")
+
+    # check for expected cols in instrument
+    if (!raw %in% names(instrument_data))
+      stop(paste(raw, "not a column in instrument_data"))
+    if (!"station" %in% names(instrument_data))
+      stop("station not a column in instrument_data")
+    if (!"date_time" %in% names(instrument_data))
+      stop("date_time not a column in instrument_data")
+
+    # checks are complete, proceed to do stuff
+    # first reformat col names in ysi to all lowercase and do grep to make sure columns are named "station" and "date_time" exactly
     colnames(ysi_data) <-
       tolower(gsub("\\.", "\\_", colnames(ysi_data)))
-    names(ysi_data)[grep("time|dt", names(ysi_data), ignore.case = TRUE)] <- "date_time"
+    names(ysi_data)[grep("time|dt", names(ysi_data), ignore.case = TRUE)] <-
+      "date_time"
+    cal_by <- tolower(cal_by)
+
+    # in case raw and cal_by are the same
+    if (raw == cal_by) {
+      colnames(ysi_data)[[which(colnames(ysi_data) == cal_by)]] <-
+        paste0(cal_by, "_ysi")
+      cal_by <- paste0(cal_by, "_ysi")
+    }
 
     # round ysi datetimes to nearest hour, force to standard Alaska timezone
     ysi_data[["date_time"]] <-
       force_tz(round.POSIXt(ysi_data[["date_time"]], units = "hours"), "Etc/GMT+8")
-    ysi_data <- ysi_data[!is.na(ysi_data[["date_time"]]),]
+    ysi_data <- ysi_data[!is.na(ysi_data[["date_time"]]), ]
     # do the same for instrument data
     # instrument_data[["date_time"]] <- force_tz(as.POSIXct(instrument_data[["date_time"]]), "Etc/GMT+8")
 
@@ -39,7 +72,7 @@ calibrate_data <-
       )
     # reorder by station then date, since we're calibrating by row order
     merged <-
-      merged[order(merged[["station"]], merged[["date_time"]]),]
+      merged[order(merged[["station"]], merged[["date_time"]]), ]
 
     # initiate output df
     output <- data.frame()
@@ -69,7 +102,6 @@ calibrate_data <-
 
       # loop over the number of calibration points
       for (m in 1:(length(cal_by_rows) - 1)) {
-
         cal_start <- cal_by_rows[m]
         cal_end <- cal_by_rows[m + 1]
 
