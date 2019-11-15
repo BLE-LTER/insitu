@@ -6,6 +6,7 @@
 #' @param P (numeric) pressure in atm, default is 1
 #' @return side by side plots, first of temperature vs salinity with freezing line, second of salinity over time, third of temperature over time
 #' @example plot.TS(test_data,"Temperature","Salinity","DT", plottitle="KALD1")
+#' @importFrom viridisLite viridis
 #' @export
 
 

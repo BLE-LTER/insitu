@@ -7,11 +7,11 @@
 plot_tempsal(df, Temp, Sal, Date, Pres = 1.3, plottitle)
 }
 \arguments{
-\item{Temp}{(name) column of temperature values in Celsius}
+\item{Temp}{(character) column name of temperature values in Celsius}
 
-\item{Sal}{(name) column of salinity in PSU}
+\item{Sal}{(character) column name of salinity}
 
-\item{Date}{(Date/Time/Datetime)}
+\item{Date}{(dttm) column name of date or date time}
 
 \item{P}{(numeric) pressure in atm, default is 1}
 }
