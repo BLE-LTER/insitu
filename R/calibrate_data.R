@@ -7,6 +7,7 @@
 #' @param calibrated (character) Name of column to store output calibrated data. Default to "_calibrated" appended to the raw column name.
 #' @param some_missing (logical) TRUE/FALSE on whether to calibrate where there are beginning or end dates that do not have calibrated values (e.g. if the instrument was deployed on June 1 but there's no calibration data until July 1). If TRUE, function will assume the instrument data on the first/last dates are true and use them as calibration points. If FALSE, the time portions prior or after the first/last calibration values will not altered. Defaults to TRUE.
 #' @importFrom lubridate force_tz
+#' @importFrom crayon
 #' @export
 
 calibrate_data <-
@@ -86,24 +87,40 @@ calibrate_data <-
       cal_by_rows <- which(!is.na(cal_by_col))
       num_rows <- nrow(by_station)
 
+      # output messages
       if (length(cal_by_rows) > 0) {
         message(
           paste(
-            "Found",
-            length(cal_by_rows),
-            "calibration points for station",
-            i,
-            "at timepoint(s):",
-            paste0(by_station[cal_by_rows, "date_time", drop = T], collapse = ", ")
+            bold(i),
+            "station:",
+            "\n\tFound",
+            bold(length(cal_by_rows)),
+            "calibration points from YSI data",
+            "at:",
+            blue(paste0(by_station[cal_by_rows, "date_time", drop = T], collapse = ", "))
           )
         )
         # copy over first/last if some_missing == TRUE and add first/last to calibrated points
         if (some_missing) {
           if (is.na(cal_by_col[1])) {
+            message(paste(
+              green(
+                "\tUsing first row of raw instrument data at",
+                blue(by_station[[1, "date_time"]]),
+                "as calibration point."
+              )
+            ))
             cal_by_col[1] <- raw_col[1]
             cal_by_rows <- c(1, cal_by_rows)
           }
           if (is.na(cal_by_col[num_rows])) {
+            message(paste(
+              green(
+                "\tUsing last row of raw instrument data at",
+                blue(by_station[[num_rows, "date_time"]]),
+                "as calibration point."
+              )
+            ))
             cal_by_col[num_rows] <- raw_col[num_rows]
             cal_by_rows <- c(cal_by_rows, num_rows)
           }
@@ -127,11 +144,11 @@ calibrate_data <-
       } # end if found > 0 calibration point
 
       else if (length(cal_by_rows) > 0)
-        message(paste(
+        message(red(paste(
           "Found 0 calibration point for station",
-          i,
-          "and will not alter raw data."
-        ))
+          bold(i),
+          "so function will not alter raw data."
+        )))
       # append data to output df
       output <- rbind(output, by_station)
     } # end station for loop
