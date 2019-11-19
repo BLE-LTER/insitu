@@ -32,9 +32,9 @@ flag_salinity <-
 
     if (!is.null(flag_scheme)) {
       if (is.character(flag_scheme) && length(flag_scheme) == 2) {
-        data[data[["anomalous"]], "anomalous"] <-
-          as.character(flag_scheme[1])
         data[data[["anomalous"]] == FALSE, "anomalous"] <-
+          as.character(flag_scheme[1])
+        data[data[["anomalous"]], "anomalous"] <-
           as.character(flag_scheme[2])
       }
     }
