@@ -7,7 +7,7 @@
 #' @param calibrated (character) Name of column to store output calibrated data. Default to "_calibrated" appended to the raw column name.
 #' @param some_missing (logical) TRUE/FALSE on whether to calibrate where there are beginning or end dates that do not have calibrated values (e.g. if the instrument was deployed on June 1 but there's no calibration data until July 1). If TRUE, function will assume the instrument data on the first/last dates are true and use them as calibration points. If FALSE, the time portions prior or after the first/last calibration values will not altered. Defaults to TRUE.
 #' @importFrom lubridate force_tz
-#' @importFrom crayon
+#' @importFrom crayon bold green blue red
 #' @export
 
 calibrate_data <-
@@ -17,6 +17,7 @@ calibrate_data <-
            raw = "temperature",
            calibrated = paste0(raw, "_calibrated"),
            some_missing = TRUE) {
+
     # check for dfs
     if (!is.data.frame(instrument_data))
       stop("instrument_data not data.frame")
@@ -95,7 +96,7 @@ calibrate_data <-
             "station:",
             "\n\tFound",
             bold(length(cal_by_rows)),
-            "calibration points from YSI data",
+            "calibration point(s) from YSI data",
             "at:",
             blue(paste0(by_station[cal_by_rows, "date_time", drop = T], collapse = ", "))
           )
