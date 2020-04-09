@@ -13,22 +13,31 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+#Some intro text
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(insitu)
 ```
 
-## Including Plots
+#Calculate salinity
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+#easily read in files from different instrument types 
+
+
+#Look at the data
+
+Simple timeseries plot
+
+
+
+#Calibrate the data based on readings from a more recently-calibrated sensor
+
+
+
+#Identify "bad" data based on the freezing line from temperature/salinity plots
+In cold regions, temperature/salinity plots can easily tell you when something is amiss in your data. This often occurs because the conductivity reading if off due to obstruction by sediments or fouling (for instruments with a conductivity cup), or by nearby ice or other conductive materials (for RBR "donuts"). 
+
+
+#You can also manually identify "bad" data that doesn't get picked up from the freezing line algorithm
