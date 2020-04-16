@@ -15,11 +15,18 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #Some intro text
 
+First let's load in some handy packages
 ```{r}
 library(insitu)
+library(RCurl) #For loading in data directly from online repositories
+library(tidyverse)
 ```
 
 #Calculate salinity
+
+```{r}
+
+```
 
 
 
@@ -27,6 +34,16 @@ library(insitu)
 
 
 #Look at the data
+
+First, read in some data (this is Beaufort Lagoon Ecosystem LTER data from 2018-2019)
+
+```{r}
+urlCSV <- getURL("https://portal-s.edirepository.org/nis/dataviewer?packageid=knb-lter-ble.3.7&entityid=534373640a661d8ed0bfedc52479a133", timeout = 200)
+txtCSV <- textConnection(urlCSV)
+tempsal_data <- read.csv(txtCSV) %>% filter(station=="KALD1")
+close(txtCSV)
+```
+
 
 Simple timeseries plot
 
