@@ -19,7 +19,7 @@ First let's load in some handy packages
 ```{r}
 library(insitu)
 library(RCurl) #For loading in data directly from online repositories
-library(tidyverse)
+library(tidyverse) #we're going to work in the tidyverse for data manipulation and plotting
 ```
 
 #Calculate salinity
@@ -30,7 +30,7 @@ library(tidyverse)
 
 
 
-#easily read in files from different instrument types 
+#easily read in files from different instrument types `r ?import_data()
 
 
 #Look at the data
@@ -40,16 +40,32 @@ First, read in some data (this is Beaufort Lagoon Ecosystem LTER data from 2018-
 ```{r}
 urlCSV <- getURL("https://portal-s.edirepository.org/nis/dataviewer?packageid=knb-lter-ble.3.7&entityid=534373640a661d8ed0bfedc52479a133", timeout = 200)
 txtCSV <- textConnection(urlCSV)
-tempsal_data <- read.csv(txtCSV) %>% filter(station=="KALD1")
+tempsal_data <- read.csv(txtCSV, stringsAsFactors = F) %>% 
+  filter(station=="KALD1") %>% 
+  mutate(date_time=as.POSIXct(date_time, format="%m/%d/%Y %H:%M"))
 close(txtCSV)
+
+head(tempsal_data)
+str(tempsal_data)
 ```
 
 
-Simple timeseries plot
+Simple timeseries plots
+```{r}
+ggplot(tempsal_data, aes(date_time, temperature))+
+  geom_line()
 
+ggplot(tempsal_data, aes(date_time, conductivity))+
+  geom_line()
+```
+
+Some of this conductivity data is clearly bad (look at that June-July weirdness)! We need to calibrate the data and remove "bad" points.
 
 
 #Calibrate the data based on readings from a more recently-calibrated sensor
+```{r}
+
+```
 
 
 
