@@ -1,7 +1,7 @@
 ---
 title: 'in situ vignette: data checking and calibration'
 author: "Christina Bonsell"
-date: "April 9, 2020"
+date: "April 17, 2020"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{in situ vignette: data checking and calibration}
@@ -11,37 +11,42 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
-#Some intro text
-
-First let's load in some handy packages
 ```{r}
 library(insitu)
+```
+
+
+This package was developed to streamline QA/QC of hydrographic (CTD and current) timeseries data from the Arctic coast of Alaska within the R environment. Specifically, functions in this package calibrate data and flag suspicious data either programatically or manually. Many of the functions within have general use for QA/QC of hydrographic timeseries regardless of location.
+
+For example: Calculate salinity from conductivty and temperature ising the UNESCO algorithm
+
+```{r calcsal}
+calculate_salinity(25.50,1)
+```
+
+Easily read in files from either RBR or starOddi CTDs, or Lowell Tilt Current Meters via `import_data`
+
+***
+
+##How to Perform quality control on CTD datasets, with particular focus on Arctic nearshore systems
+
+The remainder of this vignette demonstrates a typical workflow for QA/QC of such datasets. 
+
+First let's load in some handy packages
+```{r packages, message=FALSE}
 library(RCurl) #For loading in data directly from online repositories
 library(tidyverse) #we're going to work in the tidyverse for data manipulation and plotting
 library(cowplot)
 ```
 
-#Calculate salinity from conductivty and temperature ising the UNESCO algorithm
-
-```{r}
-calculate_salinity(25.50,1)
-```
-
-
-
-#easily read in files from either RBR or starOddi CTDs, or Lowell Tilt Current Meters  `r ?import_data`
-
 ***
 
-#How to Perform quality control on CTD datasets, with particular focus on Arctic nearshore systems
+Read in some data (this is Beaufort Lagoon Ecosystem LTER data from 2018-2019)
 
-###Look at the data
-
-First, read in some data (this is Beaufort Lagoon Ecosystem LTER data from 2018-2019)
-
-```{r}
+```{r readctd, warning=FALSE}
 urlCSV <- getURL("https://portal-s.edirepository.org/nis/dataviewer?packageid=knb-lter-ble.3.7&entityid=534373640a661d8ed0bfedc52479a133", timeout = 200)
 txtCSV <- textConnection(urlCSV)
 tempsal_data <- read.csv(txtCSV, stringsAsFactors = F) %>% 
@@ -55,7 +60,8 @@ str(tempsal_data)
 
 
 Simple timeseries plots
-```{r}
+
+```{r timeseries, warning=FALSE}
 ggplot(tempsal_data, aes(date_time, temperature))+
   geom_line()
 
@@ -66,10 +72,10 @@ ggplot(tempsal_data, aes(date_time, conductivity))+
 Some of this conductivity data is clearly bad (look at that June-July weirdness)! We need to calibrate the data and remove "bad" points.
 
 
-#Calibrate the data based on readings from a more recently-calibrated sensor
+###Calibrate the data based on readings from a more recently-calibrated sensor
 
-read in data from YSI sonde measurements after deployment and just before retrieval of the CTD
-```{r}
+Read in data from YSI sonde measurements after deployment and just before retrieval of the CTD
+```{r readysi, warning=FALSE}
 urlCSV <- getURL("https://portal-s.edirepository.org/nis/dataviewer?packageid=knb-lter-ble.3.7&entityid=6d327300d4893e4f932220fecf49c507", timeout = 200)
 txtCSV <- textConnection(urlCSV)
 ysi<- read.csv(txtCSV, stringsAsFactors = F) %>% 
@@ -83,7 +89,7 @@ head(ysi)
 
 Calibrate the data based on linear relationship between these two "anchor" points. Note that this will also work with >2 anchor points, for which the adjustment will be based on the linear relationship between each sequential pair of anchor points. If data exists before or after anchor points, the linear relationship will use the first (in the before case), or last (in the after case) reading from the raw data. 
 
-```{r}
+```{r calibrate, warning=FALSE}
 tempsal_data_calibrated <- calibrate_data(tempsal_data, ysi, raw= "temperature", cal_by = "temperature_C")
 
 tempsal_data_calibrated  <- calibrate_data(tempsal_data_calibrated, ysi, raw= "conductivity", cal_by = "conductivity_uS_cm")
@@ -100,7 +106,7 @@ ggplot(tempsal_data_calibrated, aes(date_time, conductivity))+
 ```
 
 Ok, now that the data is calibrated, let's calculate and plot salinity. We're going to to this the "tidyverse" way
-```{r}
+```{r derivesal, warning=FALSE}
 tempsal_data_calibrated <- tempsal_data_calibrated %>%
   mutate(salinity_calibrated=calculate_salinity(conductivity_calibrated, temperature_calibrated))
 
@@ -111,16 +117,17 @@ ggplot(tempsal_data_calibrated, aes(date_time, salinity_calibrated))+
 Clearly some of that data is still bad, so let's flag it...
 
 
-#Identify "bad" data based on the freezing line from temperature/salinity plots
+###Identify "bad" data based on the freezing line from temperature/salinity plots
+
 Temperature/salinity plots can easily tell you when something is amiss in your data. This often occurs because the conductivity reading if off due to obstruction by sediments or fouling (for instruments with a conductivity cup), or by nearby ice or other conductive materials (for RBR "donuts"). In cold regions, data below the freezing line is expecially suspect.
 
-```{r}
+```{r plotTS, warning=FALSE}
 plot_tempsal(tempsal_data_calibrated, "temperature_calibrated", "salinity_calibrated", "date_time", plottitle="example")
 ```
 
 The straight lines for points in the temp vs sal plot indicate intstrument error. We can flag the points below the freezing line programatically. This function creates a column `anomalous` to indicated flagged data
 
-```{r}
+```{r flagsal, warning=FALSE}
 tempsal_data_flagged <- flag_salinity(tempsal_data_calibrated, tempcol="temperature_calibrated", condcol="conductivity_calibrated",Terror=.1, Cerror = 2, flag_scheme = c("VALID","INV"))
 
 head(tempsal_data_flagged)
@@ -132,20 +139,20 @@ ggplot(tempsal_data_flagged, aes(date_time, salinity_calibrated))+
 
 Clearly, this doesn't take care of all the suspicous data. 
 
-#You can easily manually identify "bad" data that doesn't get picked up from the freezing line algorithm
+###Easily manually identify "bad" data that doesn't get picked up from the freezing line algorithm
 
 This function will open up an external window where you can manually click on suspicious points. Click "Stop" in the upper left of the pop-up when you are done.
-```{r}
+```{r idoutlier, warning=FALSE}
 id_outlier(tempsal_data_calibrated, datecol="date_time", tempcol="temperature_calibrated", salcol="salinity_calibrated")
 ```
 
 Note that you can incorporate this output into the flag colmun of your dataframe via indexing
 
-```{r}
+```{r badpts, warning=FALSE}
 bad_points <- id_outlier(tempsal_data_calibrated, datecol="date_time", tempcol="temperature_calibrated", salcol="salinity_calibrated")
 ```
 
-```{r}
+```{r flagviaindex, warning=FALSE}
 tempsal_data_flagged$anomalous[bad_points] <- "Questionable"
 
 ggplot(tempsal_data_flagged, aes(date_time, salinity_calibrated))+
