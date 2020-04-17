@@ -118,11 +118,37 @@ Temperature/salinity plots can easily tell you when something is amiss in your d
 plot_tempsal(tempsal_data_calibrated, "temperature_calibrated", "salinity_calibrated", "date_time", plottitle="example")
 ```
 
-The straight lines for points in the temp vs sal plot indicate intstrument error. We can remove the points below the freezing line programatically.
+The straight lines for points in the temp vs sal plot indicate intstrument error. We can flag the points below the freezing line programatically. This function creates a column `anomalous` to indicated flagged data
 
 ```{r}
-flag_salinity
+tempsal_data_flagged <- flag_salinity(tempsal_data_calibrated, tempcol="temperature_calibrated", condcol="conductivity_calibrated",Terror=.1, Cerror = 2, flag_scheme = c("VALID","INV"))
+
+head(tempsal_data_flagged)
+
+ggplot(tempsal_data_flagged, aes(date_time, salinity_calibrated))+
+  geom_point(aes(color=anomalous))
+
 ```
 
+Clearly, this doesn't take care of all the suspicous data. 
 
-#You can also manually identify "bad" data that doesn't get picked up from the freezing line algorithm
+#You can easily manually identify "bad" data that doesn't get picked up from the freezing line algorithm
+
+This function will open up an external window where you can manually click on suspicious points. Click "Stop" in the upper left of the pop-up when you are done.
+```{r}
+id_outlier(tempsal_data_calibrated, datecol="date_time", tempcol="temperature_calibrated", salcol="salinity_calibrated")
+```
+
+Note that you can incorporate this output into the flag colmun of your dataframe via indexing
+
+```{r}
+bad_points <- id_outlier(tempsal_data_calibrated, datecol="date_time", tempcol="temperature_calibrated", salcol="salinity_calibrated")
+```
+
+```{r}
+tempsal_data_flagged$anomalous[bad_points] <- "Questionable"
+
+ggplot(tempsal_data_flagged, aes(date_time, salinity_calibrated))+
+  geom_point(aes(color=anomalous))
+```
+
