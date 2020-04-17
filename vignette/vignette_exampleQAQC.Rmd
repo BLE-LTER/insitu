@@ -20,6 +20,7 @@ First let's load in some handy packages
 library(insitu)
 library(RCurl) #For loading in data directly from online repositories
 library(tidyverse) #we're going to work in the tidyverse for data manipulation and plotting
+library(cowplot)
 ```
 
 #Calculate salinity from conductivty and temperature ising the UNESCO algorithm
@@ -111,7 +112,17 @@ Clearly some of that data is still bad, so let's flag it...
 
 
 #Identify "bad" data based on the freezing line from temperature/salinity plots
-In cold regions, temperature/salinity plots can easily tell you when something is amiss in your data. This often occurs because the conductivity reading if off due to obstruction by sediments or fouling (for instruments with a conductivity cup), or by nearby ice or other conductive materials (for RBR "donuts"). 
+Temperature/salinity plots can easily tell you when something is amiss in your data. This often occurs because the conductivity reading if off due to obstruction by sediments or fouling (for instruments with a conductivity cup), or by nearby ice or other conductive materials (for RBR "donuts"). In cold regions, data below the freezing line is expecially suspect.
+
+```{r}
+plot_tempsal(tempsal_data_calibrated, "temperature_calibrated", "salinity_calibrated", "date_time", plottitle="example")
+```
+
+The straight lines for points in the temp vs sal plot indicate intstrument error. We can remove the points below the freezing line programatically.
+
+```{r}
+flag_salinity
+```
 
 
 #You can also manually identify "bad" data that doesn't get picked up from the freezing line algorithm
