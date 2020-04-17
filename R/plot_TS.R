@@ -4,6 +4,7 @@
 #' @param Sal (character) column name of salinity
 #' @param Date (dttm) column name of date or date time
 #' @param P (numeric) pressure in atm, default is 1
+#' @param plottitle (character) title of plot, default is "T vs S"
 #' @return side by side plots, first of temperature vs salinity with freezing line, second of salinity over time, third of temperature over time
 #' @example plot.TS(test_data,"Temperature","Salinity","DT", plottitle="KALD1")
 #' @importFrom viridisLite viridis
@@ -11,7 +12,7 @@
 
 
 
-plot_tempsal <- function(df, Temp, Sal, Date, Pres = 1.3, plottitle){
+plot_tempsal <- function(df, Temp, Sal, Date, Pres = 1.3, plottitle = "T vs S"){
 
   freeze <- function(S,P = Pres){ # create equation for freezing line
     TF <-  (-0.0575 + 1.710523E-3 * sqrt(abs(S)) - 2.154996E-4 * S) * S - 7.53E-4 * (P*10.132501)
