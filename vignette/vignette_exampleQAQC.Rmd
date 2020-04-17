@@ -61,7 +61,7 @@ str(tempsal_data)
 
 Simple timeseries plots
 
-```{r timeseries, warning=FALSE}
+```{r timeseries, warning=FALSE, fig.width=8}
 ggplot(tempsal_data, aes(date_time, temperature))+
   geom_line()
 
@@ -89,7 +89,7 @@ head(ysi)
 
 Calibrate the data based on linear relationship between these two "anchor" points. Note that this will also work with >2 anchor points, for which the adjustment will be based on the linear relationship between each sequential pair of anchor points. If data exists before or after anchor points, the linear relationship will use the first (in the before case), or last (in the after case) reading from the raw data. 
 
-```{r calibrate, warning=FALSE}
+```{r calibrate, warning=FALSE, fig.width=8}
 tempsal_data_calibrated <- calibrate_data(tempsal_data, ysi, raw= "temperature", cal_by = "temperature_C")
 
 tempsal_data_calibrated  <- calibrate_data(tempsal_data_calibrated, ysi, raw= "conductivity", cal_by = "conductivity_uS_cm")
@@ -106,7 +106,7 @@ ggplot(tempsal_data_calibrated, aes(date_time, conductivity))+
 ```
 
 Ok, now that the data is calibrated, let's calculate and plot salinity. We're going to to this the "tidyverse" way
-```{r derivesal, warning=FALSE}
+```{r derivesal, warning=FALSE, fig.width=8}
 tempsal_data_calibrated <- tempsal_data_calibrated %>%
   mutate(salinity_calibrated=calculate_salinity(conductivity_calibrated, temperature_calibrated))
 
@@ -121,13 +121,13 @@ Clearly some of that data is still bad, so let's flag it...
 
 Temperature/salinity plots can easily tell you when something is amiss in your data. This often occurs because the conductivity reading if off due to obstruction by sediments or fouling (for instruments with a conductivity cup), or by nearby ice or other conductive materials (for RBR "donuts"). In cold regions, data below the freezing line is expecially suspect.
 
-```{r plotTS, warning=FALSE}
+```{r plotTS, warning=FALSE, fig.width=8}
 plot_tempsal(tempsal_data_calibrated, "temperature_calibrated", "salinity_calibrated", "date_time", plottitle="example")
 ```
 
 The straight lines for points in the temp vs sal plot indicate intstrument error. We can flag the points below the freezing line programatically. This function creates a column `anomalous` to indicated flagged data
 
-```{r flagsal, warning=FALSE}
+```{r flagsal, warning=FALSE, fig.width=8}
 tempsal_data_flagged <- flag_salinity(tempsal_data_calibrated, tempcol="temperature_calibrated", condcol="conductivity_calibrated",Terror=.1, Cerror = 2, flag_scheme = c("VALID","INV"))
 
 head(tempsal_data_flagged)
@@ -142,17 +142,15 @@ Clearly, this doesn't take care of all the suspicous data.
 ###Easily manually identify "bad" data that doesn't get picked up from the freezing line algorithm
 
 This function will open up an external window where you can manually click on suspicious points. Click "Stop" in the upper left of the pop-up when you are done.
-```{r idoutlier, warning=FALSE}
-id_outlier(tempsal_data_calibrated, datecol="date_time", tempcol="temperature_calibrated", salcol="salinity_calibrated")
-```
-
-Note that you can incorporate this output into the flag colmun of your dataframe via indexing
-
-```{r badpts, warning=FALSE}
+```{r idoutlier, warning=FALSE, fig.width=8}
 bad_points <- id_outlier(tempsal_data_calibrated, datecol="date_time", tempcol="temperature_calibrated", salcol="salinity_calibrated")
+
+bad_points
 ```
 
-```{r flagviaindex, warning=FALSE}
+Note that you can incorporate this output into the flag column of your dataframe via indexing
+
+```{r flagviaindex, warning=FALSE, fig.width=8}
 tempsal_data_flagged$anomalous[bad_points] <- "Questionable"
 
 ggplot(tempsal_data_flagged, aes(date_time, salinity_calibrated))+
