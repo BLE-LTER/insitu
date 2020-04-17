@@ -22,18 +22,21 @@ library(RCurl) #For loading in data directly from online repositories
 library(tidyverse) #we're going to work in the tidyverse for data manipulation and plotting
 ```
 
-#Calculate salinity
+#Calculate salinity from conductivty and temperature ising the UNESCO algorithm
 
 ```{r}
-
+calculate_salinity(25.50,1)
 ```
 
 
 
-#easily read in files from different instrument types `r ?import_data()
+#easily read in files from either RBR or starOddi CTDs, or Lowell Tilt Current Meters  `r ?import_data`
 
+***
 
-#Look at the data
+#How to Perform quality control on CTD datasets, with particular focus on Arctic nearshore systems
+
+###Look at the data
 
 First, read in some data (this is Beaufort Lagoon Ecosystem LTER data from 2018-2019)
 
@@ -63,6 +66,22 @@ Some of this conductivity data is clearly bad (look at that June-July weirdness)
 
 
 #Calibrate the data based on readings from a more recently-calibrated sensor
+
+read in data from YSI sonde measurements after deployment and just before retrieval of the CTD
+```{r}
+urlCSV <- getURL("https://portal-s.edirepository.org/nis/dataviewer?packageid=knb-lter-ble.3.7&entityid=6d327300d4893e4f932220fecf49c507", timeout = 200)
+txtCSV <- textConnection(urlCSV)
+ysi_data <- read.csv(txtCSV, stringsAsFactors = F) %>% 
+  filter(station=="KALD1") %>% 
+  mutate(date_time=as.POSIXct(substr(date_time,1, 16), format="%Y-%m-%dT%H:%M"))#datetime is in ISO 8601, but inports as character
+close(txtCSV)
+
+head(ysi_data)
+
+```
+
+Calibrate the data based on linear relationship between these two "anchor" points. Note that this will also work with >2 anchor points, for which the adjustment will be based on the linear relationship between each sequential pair of anchor points. 
+
 ```{r}
 
 ```
