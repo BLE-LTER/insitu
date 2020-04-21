@@ -4,7 +4,7 @@
 \alias{plot_tempsal}
 \title{Initial look at Temperature and Salinity data}
 \usage{
-plot_tempsal(df, Temp, Sal, Date, Pres = 1.3, plottitle)
+plot_tempsal(df, Temp, Sal, Date, Pres = 1.3, plottitle = "T vs S")
 }
 \arguments{
 \item{Temp}{(character) column name of temperature values in Celsius}
@@ -12,6 +12,8 @@ plot_tempsal(df, Temp, Sal, Date, Pres = 1.3, plottitle)
 \item{Sal}{(character) column name of salinity}
 
 \item{Date}{(dttm) column name of date or date time}
+
+\item{plottitle}{(character) title of plot, default is "T vs S"}
 
 \item{P}{(numeric) pressure in atm, default is 1}
 }
