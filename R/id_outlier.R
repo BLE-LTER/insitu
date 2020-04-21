@@ -9,6 +9,7 @@
 #' @return Numeric vector of row numbers manually ID'ed by user. Note that this returns an error if user did not click stop before exiting the plot application.
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom grDevices colorRampPalette
+#' @importFrom cowplot ggdraw
 #' @export
 
 id_outlier <-
