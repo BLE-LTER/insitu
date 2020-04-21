@@ -1,24 +1,19 @@
 # insitu
-October 18th 2019
+April 21st 2020
 
 ### Orientation
 `insitu` is a R package to import, clean, join, calibrate, and flag data from BLE-LTER's insitu deployment sensors. 
 
 ### Features
 
-- 
-- 
+- Read data from RBR, StarOddi, TCM instruments into standard formats
+- Calibrate and flag data easily and seamlessly
 
 ### Installation
 
 Execute this line in R console to install `insitu`.
 
-```
-devtools::install_github("atn38/insitu")
-```
-
-Or this, once we've transferred this repo under the BLE-LTER umbrella.
-```
+```r
 devtools::install_github("BLE-LTER/insitu")
 ```
 
