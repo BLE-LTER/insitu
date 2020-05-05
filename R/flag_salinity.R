@@ -29,7 +29,7 @@ flag_salinity <-
 
     posTerror <- data[[tempcol]] + Terror
     posCerror <- data[[condcol]] + Cerror
-    pCpTSalerror <- calculate_salinity(posCerror, posTerror, ref_cond)
+    pCpTSalerror <- calculate_salinity(posCerror, posTerror, ref_cond = 42.9)
 
     # data is "anomalous" if data +C+T error is below the freezing line
     data[[flag_colname]] <-
