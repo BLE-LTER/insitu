@@ -7,8 +7,9 @@
 #' @param condcol (character) Name of column for conductivity. Defaults to "conductivity".
 #' @param Terror (numeric) Precision for temperature.
 #' @param Cerror (numeric) Precision for conductivity.
+#' @param flag_colname (character) Column name to give the new flag column, defaults to "anomalous".
 #' @param flag_scheme (character) Scheme for flagging anomalous salinity values. Supply a vector of character flags to denote good/bad data respectively, e.g. c("valid", "invalid"). The first two will be used. IF NULL function will output a logical TRUE/FALSE column.
-#' @return (data.frame) The input dataframe with a new column added: "anomalous" (character or logical) indicating anomalous values.
+#' @return (data.frame) The input dataframe with a new column added, named by the flag_colname argument, defaults to "anomalous" (character or logical) indicating anomalous values.
 #' @export
 
 flag_salinity <-
@@ -17,24 +18,26 @@ flag_salinity <-
            condcol = "conductivity",
            Terror,
            Cerror,
+           flag_colname = "anomalous",
            flag_scheme = c("valid", "invalid")) {
-    if (!tempcol %in% names(data)) stop(paste(tempcol, "not a column in data"))
-    if (!condcol %in% names(data)) stop(paste(condcol, "not a column in data"))
-    stopifnot(is.numeric(Terror), is.numeric(Cerror), is.null(flag_scheme) | length(flag_scheme) >= 2)
+    stopifnot(is.data.frame(data), is.numeric(Terror), is.numeric(Cerror), is.null(flag_scheme) | length(flag_scheme) >= 2)
+
+    if (!tempcol %in% colnames(data)) stop(paste(tempcol, "not a column in data"))
+    if (!condcol %in% colnames(data)) stop(paste(condcol, "not a column in data"))
 
     posTerror <- data[[tempcol]] + Terror
     posCerror <- data[[condcol]] + Cerror
     pCpTSalerror <- calculate_salinity(posCerror, posTerror)
 
     # data is "anomalous" if data +C+T error is below the freezing line
-    data[["anomalous"]] <-
+    data[[flag_colname]] <-
       posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2) - 7.53E-4
 
     if (!is.null(flag_scheme)) {
       if (is.character(flag_scheme) && length(flag_scheme) == 2) {
-        data[as.character(data[["anomalous"]]) == "FALSE", "anomalous"] <-
+        data[as.character(data[[flag_colname]]) == "FALSE", flag_colname] <-
           as.character(flag_scheme[1])
-        data[as.character(data[["anomalous"]]) == "TRUE", "anomalous"] <-
+        data[as.character(data[[flag_colname]]) == "TRUE", flag_colname] <-
           as.character(flag_scheme[2])
       }
     }
