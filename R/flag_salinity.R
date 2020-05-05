@@ -19,7 +19,7 @@ flag_salinity <-
            condcol = "conductivity",
            Terror,
            Cerror,
-           ref_cond,
+           ref_cond = 42.9,
            flag_colname = "anomalous",
            flag_scheme = c("valid", "invalid")) {
     stopifnot(is.data.frame(data), is.numeric(Terror), is.numeric(Cerror), is.null(flag_scheme) | length(flag_scheme) >= 2)
@@ -29,7 +29,7 @@ flag_salinity <-
 
     posTerror <- data[[tempcol]] + Terror
     posCerror <- data[[condcol]] + Cerror
-    pCpTSalerror <- calculate_salinity(posCerror, posTerror, ref_cond = 42.9)
+    pCpTSalerror <- calculate_salinity(posCerror, posTerror, ref_cond)
 
     # data is "anomalous" if data +C+T error is below the freezing line
     data[[flag_colname]] <-
