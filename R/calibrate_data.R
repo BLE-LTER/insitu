@@ -60,7 +60,7 @@ calibrate_data <-
       force_tz(round.POSIXt(ysi_data[["date_time"]], units = "hours"), "Etc/GMT+8")
     ysi_data <- ysi_data[!is.na(ysi_data[["date_time"]]),]
     # do the same for instrument data
-    # instrument_data[["date_time"]] <- force_tz(as.POSIXct(instrument_data[["date_time"]]), "Etc/GMT+8")
+    instrument_data[["date_time"]] <- force_tz(as.POSIXct(instrument_data[["date_time"]]), "Etc/GMT+8")
 
     # merge instrument and ysi data, keeping all instrument data points, only keeping relevant YSI columns
     merged <-
