@@ -37,10 +37,12 @@ flag_salinity <-
 
     if (!is.null(flag_scheme)) {
       if (is.character(flag_scheme) && length(flag_scheme) == 2) {
-        data[as.character(data[[flag_colname]]) == "FALSE", flag_colname] <-
+        data[!is.na(data[[flag_colname]])&as.character(data[[flag_colname]]) == "FALSE", flag_colname] <-
           as.character(flag_scheme[1])
-        data[as.character(data[[flag_colname]]) == "TRUE", flag_colname] <-
+        data[!is.na(data[[flag_colname]])&as.character(data[[flag_colname]]) == "TRUE", flag_colname] <-
           as.character(flag_scheme[2])
+        data[is.na(data[[flag_colname]]), flag_colname] <-
+          NA
       }
     }
     return(data)
