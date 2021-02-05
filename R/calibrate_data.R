@@ -29,7 +29,7 @@ calibrate_data <-
     # check for expected cols in ysi
     if (!any(grepl("time|dt", names(ysi_data), ignore.case = TRUE)))
       stop("no columns vaguely resembling date_time detected in ysi_data")
-    if (!"station" %in% names(instrument_data))
+    if (!"station" %in% names(ysi_data))
       stop("station not a column in ysi_data")
 
     # check for expected cols in instrument
