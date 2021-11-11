@@ -4,8 +4,14 @@
 \alias{plot_tempsal}
 \title{Initial look at Temperature and Salinity data}
 \usage{
-plot_tempsal(df, Temp, Sal, Date, Pres = 1.3,
-  plottitle = "Temperature vs Salinity")
+plot_tempsal(
+  df,
+  Temp,
+  Sal,
+  Date,
+  Pres = 1.3,
+  plottitle = "Temperature vs Salinity"
+)
 }
 \arguments{
 \item{Temp}{(character) column name of temperature values in Celsius}

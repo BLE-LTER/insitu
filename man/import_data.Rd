@@ -4,8 +4,13 @@
 \alias{import_data}
 \title{Import data from instrument-generated files.}
 \usage{
-import_data(file_list, data_type, instrument_type, param_type,
-  column_names = c("Temperature", "Conductivity", "Salinity"))
+import_data(
+  file_list,
+  data_type,
+  instrument_type,
+  param_type,
+  column_names = c("Temperature", "Conductivity", "Salinity")
+)
 }
 \arguments{
 \item{file_list}{(character) Character vector of file paths. Use list.files() with full.names set to TRUE for this.}

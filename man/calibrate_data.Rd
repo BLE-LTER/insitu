@@ -4,9 +4,14 @@
 \alias{calibrate_data}
 \title{Calibrate instrument data according to referenced points}
 \usage{
-calibrate_data(instrument_data, ysi_data, cal_by = "value",
-  raw = "temperature", calibrated = paste0(raw, "_calibrated"),
-  some_missing = TRUE)
+calibrate_data(
+  instrument_data,
+  ysi_data,
+  cal_by = "value",
+  raw = "temperature",
+  calibrated = paste0(raw, "_calibrated"),
+  some_missing = TRUE
+)
 }
 \arguments{
 \item{instrument_data}{(data.frame) Data frame of instrument data (that needs to be calibrated). Required column names are "station", "date_time" in POSIXct format. YYYY-MM-DD hh:mm:ss would be helpful.}

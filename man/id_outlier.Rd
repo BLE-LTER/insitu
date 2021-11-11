@@ -4,10 +4,16 @@
 \alias{id_outlier}
 \title{Identify outliers via point and click on temp vs salinity plot}
 \usage{
-id_outlier(data, datecol = "date_time", tempcol = "temperature",
-  salcol = "salinity", rowseq = seq(1:nrow(data)),
+id_outlier(
+  data,
+  datecol = "date_time",
+  tempcol = "temperature",
+  salcol = "salinity",
+  rowseq = seq(1:nrow(data)),
   plot_type = "sal/time",
-  plot_title = "Manually identify anomalous data points by clicking on them. \\n Click stop on the upper left and exit for the function to return row numbers of ID'ed points")
+ 
+    plot_title = "Manually identify anomalous data points by clicking on them. \\n Click stop on the upper left and exit for the function to return row numbers of ID'ed points"
+)
 }
 \arguments{
 \item{data}{(data.frame) Data frame with columns for date or temperature, salinity.}

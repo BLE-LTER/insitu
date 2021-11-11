@@ -4,9 +4,18 @@
 \alias{flag_salinity}
 \title{Identify and flag invalid ("anomalous") data based on freezing line}
 \usage{
-flag_salinity(data, tempcol = "temperature", condcol = "conductivity",
-  Terror, Cerror, flag_colname = "anomalous", flag_scheme = c("valid",
-  "invalid"))
+flag_salinity(
+  data,
+  tempcol = "temperature",
+  condcol = "conductivity",
+  pressurecol,
+  Terror,
+  Cerror,
+  ref_cond = 42.9,
+  pressure_unit,
+  flag_colname = "anomalous",
+  flag_scheme = c("valid", "invalid")
+)
 }
 \arguments{
 \item{data}{(data.frame) Data to be flagged.}
@@ -15,9 +24,15 @@ flag_salinity(data, tempcol = "temperature", condcol = "conductivity",
 
 \item{condcol}{(character) Name of column for conductivity. Defaults to "conductivity".}
 
+\item{pressurecol}{(character) Name of column for pressure or depth. No default value.}
+
 \item{Terror}{(numeric) Precision for temperature.}
 
 \item{Cerror}{(numeric) Precision for conductivity.}
+
+\item{ref_cond}{(numeric) Reference conductivity value for calculating salinity, defaults to 42.9 for conductivity measured in miliSeimens/m^2/s.}
+
+\item{pressure_unit}{(character) Unit for pressure or depth for necessary conversion. Takes "bar" or "dbar". No other values accepted.}
 
 \item{flag_colname}{(character) Column name to give the new flag column, defaults to "anomalous".}
 
