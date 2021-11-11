@@ -38,9 +38,9 @@ flag_salinity <-
     pCpTSalerror <- calculate_salinity(posCerror, posTerror, ref_cond)
 
     # convert pressure units if needed
-    if (pressure_unit == "dbar"){
+    if (pressure_unit == "dbar") {
       pressure = data[[pressurecol]]
-    } else if (pressure_unit == "bar"){
+    } else if (pressure_unit == "bar") {
       pressure = data[[pressurecol]] * 10
     }
 
