@@ -26,42 +26,59 @@ flag_salinity <-
            pressure_unit,
            flag_colname = "anomalous",
            flag_scheme = c("valid", "invalid")) {
-    stopifnot(is.data.frame(data), is.numeric(Terror), is.numeric(Cerror), length(flag_scheme) != 2)
+    stopifnot(
+      is.data.frame(data),
+      is.numeric(Terror),
+      is.numeric(Cerror),
+      length(flag_scheme) == 2
+    )
 
-    if (!tempcol %in% colnames(data)) stop(paste(tempcol, "is not a column in supplied data"))
-    if (!condcol %in% colnames(data)) stop(paste(condcol, "is not a column in supplied data"))
-    if (!pressurecol %in% colnames(data)) stop(paste(pressurecol, "is not a column in supplied data"))
-    if (!pressure_unit %in% c("bar", "dbar", "m")) stop(paste(pressure_unit, "is not a supported value for the pressure_unit parameter. Accepted values are bar, dbar."))
+    if (!tempcol %in% colnames(data))
+      stop(paste(tempcol, "is not a column in supplied data"))
+    if (!condcol %in% colnames(data))
+      stop(paste(condcol, "is not a column in supplied data"))
+    if (!pressurecol %in% colnames(data))
+      stop(paste(pressurecol, "is not a column in supplied data"))
+    if (!pressure_unit %in% c("bar", "dbar", "m"))
+      stop(
+        paste(
+          pressure_unit,
+          "is not a supported value for the pressure_unit parameter. Accepted values are bar, dbar."
+        )
+      )
 
     posTerror <- data[[tempcol]] + Terror
     posCerror <- data[[condcol]] + Cerror
-    pCpTSalerror <- calculate_salinity(posCerror, posTerror, ref_cond)
+    pCpTSalerror <-
+      calculate_salinity(posCerror, posTerror, ref_cond)
 
     # convert pressure units if needed
-    if (pressure_unit == "dbar") {
-      pressure = data[[pressurecol]]
-    } else if (pressure_unit == "bar") {
-      pressure = data[[pressurecol]] * 10
+    if (!is.null(pressurecol)) {
+      if (pressure_unit == "dbar") {
+        pressure = data[[pressurecol]]
+      } else if (pressure_unit == "bar") {
+        pressure = data[[pressurecol]] * 10
+      }
     }
-
-
 
     # data is "anomalous" if data +C+T error is below the freezing line
     if (is.null(pressurecol)) {
-    data[[flag_colname]] <-
-      posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2)
+      data[[flag_colname]] <-
+        posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2)
     }
     else {
-    data[[flag_colname]] <-
-      posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2) - 7.53E-4 * pressure
+      data[[flag_colname]] <-
+        posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2) - 7.53E-4 * pressure
     }
 
     # apply flagging scheme
     if (!is.null(flag_scheme)) {
       if (is.character(flag_scheme) && length(flag_scheme) == 2) {
-        data[!is.na(data[[flag_colname]])&as.character(data[[flag_colname]]) == "FALSE", flag_colname] <-
+        data[!is.na(data[[flag_colname]]) &
+               as.character(data[[flag_colname]]) == "FALSE", flag_colname] <-
           as.character(flag_scheme[1])
-        data[!is.na(data[[flag_colname]])&as.character(data[[flag_colname]]) == "TRUE", flag_colname] <-
+        data[!is.na(data[[flag_colname]]) &
+               as.character(data[[flag_colname]]) == "TRUE", flag_colname] <-
           as.character(flag_scheme[2])
         data[is.na(data[[flag_colname]]), flag_colname] <-
           NA
