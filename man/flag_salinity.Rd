@@ -12,7 +12,7 @@ flag_salinity(
   Terror,
   Cerror,
   ref_cond = 42.9,
-  pressure_unit,
+  pressure_unit = "dbar",
   flag_colname = "anomalous",
   flag_scheme = c("valid", "invalid")
 )
@@ -32,7 +32,7 @@ flag_salinity(
 
 \item{ref_cond}{(numeric) Reference conductivity value for calculating salinity, defaults to 42.9 for conductivity measured in miliSeimens/m^2/s.}
 
-\item{pressure_unit}{(character) Unit for pressure or depth for necessary conversion. Takes "bar" or "dbar". No other values accepted.}
+\item{pressure_unit}{(character) Unit for pressure or depth for necessary conversion. Takes "bar" or "dbar". No other values accepted. Defaults to dbar.}
 
 \item{flag_colname}{(character) Column name to give the new flag column, defaults to "anomalous".}
 
