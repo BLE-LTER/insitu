@@ -58,8 +58,7 @@ flag_salinity <-
     if (is.null(pressurecol)) {
       data[[flag_colname]] <-
         posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2)
-    }
-    else {
+    } else {
       # convert pressure units if needed
       if (!is.null(pressurecol)) {
         if (pressure_unit == "dbar") {
@@ -67,6 +66,9 @@ flag_salinity <-
         } else if (pressure_unit == "bar") {
           pressure = data[[pressurecol]] * 10
         }
+
+        # convert NA values so that calculation doesn't return NAs
+        pressure[is.na(pressure)] <- 0
       }
       data[[flag_colname]] <-
         posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2) - 7.53E-4 * pressure
