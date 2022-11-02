@@ -19,7 +19,7 @@ flag_salinity <-
   function(data,
            tempcol = "temperature",
            condcol = "conductivity",
-           pressurecol,
+           pressurecol = NULL,
            Terror,
            Cerror,
            ref_cond = 42.9,
@@ -56,23 +56,21 @@ flag_salinity <-
 
     # omits pressure if there's no data supplied
     if (is.null(pressurecol)) {
-      data[[flag_colname]] <-
-        posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2)
-    } else {
+      pressure <- rep(0, nrow(data))
+    } else if (!is.null(pressurecol)) {
       # convert pressure units if needed
-      if (!is.null(pressurecol)) {
-        if (pressure_unit == "dbar") {
-          pressure = data[[pressurecol]]
-        } else if (pressure_unit == "bar") {
-          pressure = data[[pressurecol]] * 10
-        }
-
-        # convert NA values so that calculation doesn't return NAs
-        pressure[is.na(pressure)] <- 0
+      if (pressure_unit == "dbar") {
+        pressure = data[[pressurecol]]
+      } else if (pressure_unit == "bar") {
+        pressure = data[[pressurecol]] * 10
       }
-      data[[flag_colname]] <-
-        posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2) - 7.53E-4 * pressure
+
+      # convert NA values so that calculation doesn't return NAs
+      pressure[is.na(pressure)] <- 0
+
     }
+    data[[flag_colname]] <-
+      posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2) - 7.53E-4 * pressure
 
     # apply flagging scheme
     if (!is.null(flag_scheme)) {
