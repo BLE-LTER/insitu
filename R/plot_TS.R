@@ -8,8 +8,6 @@
 #' @return side by side plots, first of temperature vs salinity with freezing line, second of salinity over time, third of temperature over time
 #' @examples
 #' plot_tempsal(test_data,"Temperature","Salinity","DT", plottitle="KALD1")
-#' @importFrom viridisLite viridis
-#' @importFrom cowplot ggdraw
 #' @export
 
 
@@ -23,21 +21,21 @@ plot_tempsal <- function(df, Temp, Sal, Date, Pres = 1.3, plottitle = "Temperatu
 
   p1 <- ggplot(df, aes_string(x= Sal, y = Temp, color=Date))+
     geom_point()+
-    scale_color_gradientn(colors = viridis(100), trans="time")+
+    scale_color_gradientn(colors = viridisLite::viridis(100), trans="time")+
     stat_function(fun = freeze)+
     theme(legend.position = "none")
 
   p2 <- ggplot(df, aes_string(x= Date, y = Sal, color=Date))+
     geom_point()+
-    scale_color_gradientn(colors = viridis(100), trans="time")+
+    scale_color_gradientn(colors = viridisLite::viridis(100), trans="time")+
     theme(legend.position = "none")
 
   p3 <- ggplot(df, aes_string(x= Date, y = Temp, color=Date))+
     geom_point()+
-    scale_color_gradientn(colors = viridis(100), trans="time")+
+    scale_color_gradientn(colors = viridisLite::viridis(100), trans="time")+
     theme(legend.position = "none")
 
-  title <- ggdraw() +
+  title <- cowplot::ggdraw() +
     draw_label(
       plottitle,
       fontface = 'bold',

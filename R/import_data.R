@@ -5,11 +5,6 @@
 #' @param param_type (character) Name of parameter type (only applies for "TCM" data type). Processing will differ according to parameter. Accepted inputs: "temp", "current".
 #' @param column_names (character) Optional. This actually doesn't do anything atm FYI.
 #'
-#' @importFrom purrr map_df
-#' @importFrom data.table fread
-#' @importFrom readxl read_excel
-#' @importFrom stringr str_extract
-#' @importFrom lubridate as_datetime dmy_hms
 #' @export
 
 import_data <-
@@ -27,13 +22,13 @@ import_data <-
         ########################
         # do RBR import things #
         ########################
-        data <- map_df(file_list,
-                       read_excel,
+        data <- purrr::map_df(file_list,
+                       readxl::read_excel,
                        col_names = TRUE,
                        .id = "file_name")
         data <- data.frame(
-          station = str_extract(data[["file_name"]], station_code_pattern),
-          date_time = dmy_hms(data[["Timestamp"]], tz = "Etc/GMT+8"), # note: positive sign here actually means places behind Greenwich (west). this produces a negative -8 offset in the actual timezones stored within these values
+          station = stringr::str_extract(data[["file_name"]], station_code_pattern),
+          date_time = lubridate::dmy_hms(data[["Timestamp"]], tz = "Etc/GMT+8"), # note: positive sign here actually means places behind Greenwich (west). this produces a negative -8 offset in the actual timezones stored within these values
 
           data[3:11],
           stringsAsFactors = FALSE
@@ -49,7 +44,7 @@ import_data <-
         # do Star Oddi import things #
         ##############################
         data <-
-          map_df(
+          purrr::map_df(
             file_list,
             data.table::fread,
             header = FALSE,
@@ -58,8 +53,8 @@ import_data <-
           )
 
         data <- data.frame(
-          station = str_extract(data[["file_name"]], station_code_pattern),
-          date_time = dmy_hms(data[["V2"]], tz = "Etc/GMT+8"),
+          station = stringr::str_extract(data[["file_name"]], station_code_pattern),
+          date_time = lubridate::dmy_hms(data[["V2"]], tz = "Etc/GMT+8"),
           temperature = data[["V3"]],
           salinity = data[["V4"]],
           conductivity = data[["V5"]],
@@ -83,12 +78,12 @@ import_data <-
       # do TCM import things #
       ########################
       if (param_type == "temp") {
-        data <- map_df(file_list,
+        data <- purrr::map_df(file_list,
                        read_csv,
                        .id = "file_name")
 
         data <- data.frame(
-          station = str_extract(data[["file_name"]], station_code_pattern),
+          station = stringr::str_extract(data[["file_name"]], station_code_pattern),
           date_time = data[["ISO 8601 Time"]],
           temperature = data[["Temperature (C)"]],
           stringsAsFactors = FALSE
@@ -96,11 +91,11 @@ import_data <-
         return(data)
 
       } else if (param_type == "current") {
-        data <- map_df(file_list,
+        data <- purrr::map_df(file_list,
                        read_csv,
                        .id = "file_name")
         data <- data.frame(
-          station = str_extract(data[["file_name"]], station_code_pattern),
+          station = stringr::str_extract(data[["file_name"]], station_code_pattern),
           date_time = data[["ISO 8601 Time"]],
           speed = data[["Speed (cm/s)"]],
           heading = data[["Heading (degrees)"]],
