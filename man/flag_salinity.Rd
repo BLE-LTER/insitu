@@ -8,7 +8,7 @@ flag_salinity(
   data,
   tempcol = "temperature",
   condcol = "conductivity",
-  pressurecol,
+  pressurecol = NULL,
   Terror,
   Cerror,
   ref_cond = 42.9,

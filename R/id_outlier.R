@@ -7,9 +7,6 @@
 #' @param plot_type (character) Either "sal/time" for plotting salinity over time, or "temp/sal" for plotting temperature vs salinity. Defaults to "sal/time".
 #' @param plot_title (character) Give a plot title. Defaults to "Manually identify anomalous data points by clicking on them. Click stop on the upper left and exit for the function to return row numbers of ID'ed points". This is useful only if you'd like to save the plot as image.
 #' @return Numeric vector of row numbers manually ID'ed by user. Note that this returns an error if user did not click stop before exiting the plot application.
-#' @importFrom RColorBrewer brewer.pal
-#' @importFrom grDevices colorRampPalette
-#' @importFrom cowplot ggdraw
 #' @export
 
 id_outlier <-
@@ -21,7 +18,7 @@ id_outlier <-
            plot_type = "sal/time",
            plot_title = "Manually identify anomalous data points by clicking on them. \n Click stop on the upper left and exit for the function to return row numbers of ID'ed points") {
     my.col <-
-      colorRampPalette(brewer.pal(11, "Spectral"))(diff(range(rowseq)))
+      grDevices::colorRampPalette(RColorBrewer::brewer.pal(11, "Spectral"))(diff(range(rowseq)))
     win.graph(50, 35)
 
     if (plot_type == "sal/time") {
