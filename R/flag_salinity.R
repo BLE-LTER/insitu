@@ -30,45 +30,65 @@ flag_salinity <-
       is.data.frame(data),
       is.numeric(Terror),
       is.numeric(Cerror),
-      length(flag_scheme) == 2
+      is.numeric(ref_cond),
+      length(flag_scheme) == 2,
+      is.character(tempcol),
+      is.character(condcol),
+      is.character(flag_colname),
+      length(tempcol) == 1,
+      length(condcol) == 1,
+      length(flag_colname) == 1,
+      is.null(pressurecol) | is.character(pressurecol)
     )
 
     if (!tempcol %in% colnames(data))
       stop(paste(tempcol, "is not a column in supplied data"))
     if (!condcol %in% colnames(data))
       stop(paste(condcol, "is not a column in supplied data"))
-    if (!pressurecol %in% colnames(data))
-      stop(paste(pressurecol, "is not a column in supplied data"))
-    if (!pressure_unit %in% c("bar", "dbar"))
-      stop(
-        paste(
-          pressure_unit,
-          "is not a supported value for the pressure_unit parameter. Accepted values are bar or dbar."
-        )
-      )
+
 
     posTerror <- data[[tempcol]] + Terror
     posCerror <- data[[condcol]] + Cerror
     pCpTSalerror <-
       calculate_salinity(posCerror, posTerror, ref_cond)
 
-    # data is "anomalous" if data +C+T error is below the freezing line
 
     # omits pressure if there's no data supplied
     if (is.null(pressurecol)) {
       pressure <- rep(0, nrow(data))
-    } else if (!is.null(pressurecol)) {
-      # convert pressure units if needed
-      if (pressure_unit == "dbar") {
-        pressure = data[[pressurecol]]
-      } else if (pressure_unit == "bar") {
-        pressure = data[[pressurecol]] * 10
+    } else if (!is.null(pressurecol) &&
+               pressurecol %in% colnames(data)) {
+      if (pressurecol %in% colnames(data)) {
+        # convert pressure units if needed
+        if (pressure_unit == "dbar") {
+          pressure = data[[pressurecol]]
+        } else if (pressure_unit == "bar") {
+          pressure = data[[pressurecol]] * 10
+        } else if (!pressure_unit %in% c("bar", "dbar"))
+          stop(
+            paste(
+              pressure_unit,
+              "is not a supported value for the pressure_unit parameter. Accepted values are bar or dbar."
+            )
+          )
+        # convert NA values so that calculation doesn't return NAs
+        pressure[is.na(pressure)] <- 0
+      }
+      else if (!pressurecol %in% colnames(data)) {
+        stop(
+          paste(
+            "it seems you have specified pressurecol to be",
+            pressurecol,
+            "but this is not a column in the data.frame supplied. Please try again."
+          )
+        )
       }
 
-      # convert NA values so that calculation doesn't return NAs
-      pressure[is.na(pressure)] <- 0
 
     }
+
+    # data is "anomalous" if data +C+T error is below the freezing line
+
     data[[flag_colname]] <-
       posTerror < (-0.0575 * pCpTSalerror) + (pCpTSalerror ^ 1.5 * 1.710523E-3) - (2.154996E-4 * pCpTSalerror ^ 2) - 7.53E-4 * pressure
 
